@@ -1846,7 +1846,7 @@ chmod 600 KEYS
 
 Access id_rsa
 ```c
-ssh -i id_rsa -vl root linkvortex.htb
+ssh -i id_rsa -vl USER IP
 ```
 
 Bruteforce user pass
