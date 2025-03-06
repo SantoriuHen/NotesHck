@@ -1699,6 +1699,24 @@ Each domain can use different types of DNS records. Some of the most common type
 	CNAME: Canonical Name Records are used to create aliases for other host records.
 	TXT: Text records can contain any arbitrary data and be used for various purposes, such as domain ownership verification.
 
+##### Dns enumeration
+
+```c
+cat list.txt
+router
+mail
+owa
+proxy
+ftp
+www
+
+for ip in $(cat list.txt); do host $ip.DOMAIN.com; done
+```
+
+```c
+host -t mx DOMAIN.com
+```
+
 ##### dig 
 
 Name server
@@ -1732,6 +1750,13 @@ Domain zone transfer
 dig axfr DOMINIO @IP
 dnsrecon -d dominio -t AXFR 
 dnsrecon -d dominio -a
+dnsrecon -d DOMAIN.com -t std   -t type attack standard
+```
+
+Bruteforce extensions
+
+```c
+dnsrecon -d DOMAIN.com -D ~/list.txt -t brt
 ```
 
 All subdomains
@@ -1746,6 +1771,10 @@ If server is blind
 dig version.bind CHAOS TXT @IP
 ```
 nslookup 
+
+```c
+nslookup -type=TXT SUBD.DOMAIN.com IP
+```
 
 ```c
 server IP
