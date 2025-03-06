@@ -2121,6 +2121,12 @@ venv\Scripts\activate
 
 ### Information Gathering
 
+#### Passive 
+
+```c
+whois megacorpone.com -h IP
+```
+
 #### memcached
 
 >  https://github.com/pd4d10/memcached-cli
