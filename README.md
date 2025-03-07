@@ -39,6 +39,7 @@
         - [DNS](#dns)
 		- [smbclient](#smbclient)
 		- [SSH](#ssh)
+    		- [SMTP](#smtp)
 		- [Time and Date](#time-and-date)
 		- [Tmux](#tmux)
         - [Searchsploit](#searchsploit)
@@ -1647,7 +1648,7 @@ guestmount --add '/<MOUNTPOINT>/<DIRECTORY/FILE>' --inspector --ro /mnt/<MOUNT> 
 
 ```c
 nbtscan <ip>
-nbtscan -r <rango/x>
+nbtscan -r <rango/x>  localizar smb en red
 ```
 
 ##### smbmap
@@ -1859,6 +1860,51 @@ mask""
 recurse ON
 prompt OFF
 mget *
+```
+
+#### SMTP
+
+```c
+#!/usr/bin/python
+
+import socket
+import sys
+
+if len(sys.argv) != 3:
+        print("Usage: vrfy.py <username> <target_ip>")
+        sys.exit(0)
+
+# Create a Socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connect to the Server
+ip = sys.argv[2]
+connect = s.connect((ip,25))
+
+# Receive the banner
+banner = s.recv(1024)
+
+print(banner)
+
+# VRFY a user
+user = (sys.argv[1]).encode()
+s.send(b'VRFY ' + user + b'\r\n')
+result = s.recv(1024)
+
+print(result)
+
+# Close the socket
+s.close()  
+```
+
+```c
+python3 smtp.py root IP
+```
+
+In windows
+
+```c
+Test-NetConnection -Port 25 IP
 ```
 
 #### SSH
@@ -2256,6 +2302,7 @@ interesting scripts:
 
 ```c
 nmap --script=dns-zone-transfer -p 53 <servidorDNS>
+nmap -v -p 139,445 --script smb-os-discovery IP  for SMB
 ```
 
 ```c
@@ -6314,6 +6361,14 @@ pyhton3 nullnix IP
 ```c
 evil-winrm -i <RHOST> -u <USERNAME> -p <PASSWORD>
 evil-winrm -i <RHOST> -c /PATH/TO/CERTIFICATE/<CERTIFICATE>.crt -k /PATH/TO/PRIVATE/KEY/<KEY>.key -p -u -S
+```
+
+#### Net
+
+Listar shares en el DC
+
+```c
+net view \\DCNAME /all  in winows
 ```
 
 #### Crackmapexec
