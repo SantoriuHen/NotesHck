@@ -3508,6 +3508,11 @@ niginx paths
 /var/log/nginx/error.log
 ```
 
+```c
+C:\inetpub\logs\LogFiles\W3SVC1\
+C:\inetpub\wwwroot\web.config
+```
+
 ##### Shells on Web
 
 ###### Linux
