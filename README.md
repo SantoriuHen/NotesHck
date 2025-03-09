@@ -3508,6 +3508,7 @@ niginx paths
 /var/log/nginx/error.log
 ```
 
+Windows
 ```c
 C:\inetpub\logs\LogFiles\W3SVC1\
 C:\inetpub\wwwroot\web.config
