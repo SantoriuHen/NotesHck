@@ -286,6 +286,7 @@
 | Krbrelayx | https://github.com/dirkjanm/krbrelayx |
 | LAPSDumper | https://github.com/n00py/LAPSDumper |
 | LAPSToolkit | https://github.com/leoloobeek/LAPSToolkit |
+| Windows-Exploit-Suggester | https://github.com/The-Z-Labs/linux-exploit-suggester |
 | LES | https://github.com/The-Z-Labs/linux-exploit-suggester |
 | LinEnum | https://github.com/rebootuser/LinEnum |
 | lsassy | https://github.com/Hackndo/lsassy |
@@ -5875,6 +5876,7 @@ Get-NetSession -ComputerName <RHOST>
 Get-NetSession -ComputerName <RHOST> -Verbose
 Get-Acl -Path HKLM:SYSTEM\CurrentControlSet\Services\LanmanServer\DefaultSecurity\ | fl
 Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion
+[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
 ```
 
 ##### Enumeration using PowerView
