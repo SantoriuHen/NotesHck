@@ -6435,6 +6435,8 @@ AD-miner -u <USERNAME> -p <PASSWORD> -cf <NAME>
 
 #### BloodHound
 
+https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/ 
+
 ```c
 sudo apt-get install openjdk-11-jdk
 pip install bloodhound
