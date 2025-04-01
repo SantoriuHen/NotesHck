@@ -6484,8 +6484,8 @@ On victims machine
 ```c
 Import-Module ./SharpHound.ps1
 Invoke-BloodHound -CollectionMethod All
+Invoke-BloodHound -CollectionMethod All -OutputDirectory C:\Users\USER\Desktop\ -OutputPrefix "corp audit"
 
-```c
 SharpHound.exe -c All --ldapusername <USERNAME> --ldappassword <PASSWD>
 ```
 
