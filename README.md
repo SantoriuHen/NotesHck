@@ -8499,8 +8499,11 @@ gci -force //powershell ls -al
 route print
 netstat -ano
 netstat -rn
+qwinsta // other logg in users
 Get-CimInstance -Class win32_quickfixengineering | Where-Object { $_.Description -eq "Security Update" }
 ```
+https://github.com/areyou1or0/Windows/tree/master
+
 ###### Create windows user
 
 ```c
