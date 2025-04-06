@@ -6605,7 +6605,17 @@ pyhton3 nullnix IP
 ```c
 evil-winrm -i <RHOST> -u <USERNAME> -p <PASSWORD>
 evil-winrm -i <RHOST> -c /PATH/TO/CERTIFICATE/<CERTIFICATE>.crt -k /PATH/TO/PRIVATE/KEY/<KEY>.key -p -u -S
+evil-winrm -i <RHOST> -u <USERNAME> -H <HASH>
 ```
+
+Port 5986
+
+Para el puerto 5986
+
+```c
+evil-winrm -i IP -u USERNAME -p '<PASSWORD>' -S
+```
+
 
 #### Net
 
