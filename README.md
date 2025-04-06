@@ -8471,6 +8471,7 @@ tree /f C:\Users\
 tasklist /SVC
 sc query
 sc qc <SERVICE>
+arp -a // all interfaces
 netsh firewall show state
 schtasks /query /fo LIST /v
 wmic qfe get Caption,Description,HotFixID,InstalledOn
@@ -8481,6 +8482,7 @@ Get-ADPrincipalGroupMembership username | select
 gci -force //powershell ls -al
 route print
 netstat -ano
+netstat -rn
 Get-CimInstance -Class win32_quickfixengineering | Where-Object { $_.Description -eq "Security Update" }
 ```
 ###### Create windows user
