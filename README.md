@@ -5759,9 +5759,8 @@ net group "Exchange Windows Permissions" /add <USERNAME>
 Avoid restrictions
 
 ```c
-
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-```c
+```
 
 ```c
 powershell -ep bypass
