@@ -1122,6 +1122,7 @@ net user henrial contrasenia /add // new user
 net localgroup Administrators henrial /add //add to admin group
 net group  GROUPNAME USERNAME /add
 sc queryex type=service state=all | find /i "SERVICE_NAME:" // list services
+net localgroup administrators "SECURA\USER" /add
 ```
 
 ###### Powershell Nishang
@@ -9423,6 +9424,12 @@ Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
 ```c
 powershell.exe -noprofile -executionpolicy bypass -file .\<FILE>.ps1
+```
+
+###### Powershell background process
+
+```c
+Start-Job { C:\absolute\path\to\command.exe --afileparameter C:\absolute\path\to\file.txt }
 ```
 
 ##### Import Module to PowerShell cmdlet
