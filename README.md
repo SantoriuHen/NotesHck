@@ -8119,6 +8119,12 @@ watch -n 1 "ps -aux | grep pass"
 sudo tcpdump -i lo -A | grep "pass"
 ```
 
+##### Check ping connection
+
+```c
+tcpdump -i tun0 icmp -n
+```
+
 ##### find Commands
 
 ```c
