@@ -7530,7 +7530,7 @@ cat /etc/os-release
 uname -a
 lsb_release -a
 cd / -list
-``
+```
 
 5. open ports 
 ```c
