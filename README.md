@@ -7533,7 +7533,7 @@ cd / -list
 ``
 
 5. open ports 
-```
+```c
 netstat -tulpn | grep LISTEN
 ```
  or 
