@@ -1526,6 +1526,10 @@ with id_rsa
 sshuttle -v -r MI_IP RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa'
 ```
 
+```c
+sshuttle -r USER@IP_VICTIM RED_Q_KIERO/24
+```
+
 ##### FIFO
 
 ```c
