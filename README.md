@@ -3406,6 +3406,8 @@ PDF / PPTX: Server-Side Request Forgery / Blind XXE
 
 #### Gobuster
 
+Use of SecLists/Discovery/Web-Content/raft-small-words.txt for the .git, .php ..
+
 ```c
 -e    // extended mode that renders the full url
 -k    // skip ssl certificate validation
