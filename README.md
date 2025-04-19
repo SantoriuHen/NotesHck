@@ -1921,6 +1921,7 @@ smbclient \\\\<RHOST>\\<SHARE> -U '<USERNAME>' --socket-options='TCP_NODELAY IPT
 smbclient --no-pass //<RHOST>/<SHARE>
 smbclient //IP//Folder -U 'USER%PASS' -c "dir"
 smbclient \\\\IP\\Folder -U USER --pw-nt-hash HASH
+smbclient -L RHOST -U anonymous%anonymous
 ```
 If NT_STATUS_CONNECTION_DISCONNECTED 
 
