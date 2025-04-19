@@ -1922,6 +1922,7 @@ smbclient --no-pass //<RHOST>/<SHARE>
 smbclient //IP//Folder -U 'USER%PASS' -c "dir"
 smbclient \\\\IP\\Folder -U USER --pw-nt-hash HASH
 smbclient -L RHOST -U anonymous%anonymous
+smbclient  //RHOST/share -U anonymous%anonymous //smb prompt
 ```
 If NT_STATUS_CONNECTION_DISCONNECTED 
 
