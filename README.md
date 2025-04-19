@@ -2020,6 +2020,12 @@ ssh user@<RHOST> -oKexAlgorithms=+diffie-hellman-group1-sha1
 
 Introduce ower own public key on victims machine
 
+Buscar tambien
+
+```c
+id_rsa, id_ecdsa, id_ecdsa_sk, id_ed25519, id_ed25519_sk,  id_dsa
+```
+
 ```c
 cat id_rsa.pub | tr -d '\n'  
 ```
@@ -2838,6 +2844,12 @@ http://<RHOST>/<FILE>/php?file=../../../../../../../../../../etc/passwd%00
 ```
 
 Interesting routes:
+
+En .ssh look for:
+
+```c
+id_rsa, id_ecdsa, id_ecdsa_sk, id_ed25519, id_ed25519_sk,  id_dsa
+```
 
 ```c
 /home/USER/.ssh/.id_rsa
