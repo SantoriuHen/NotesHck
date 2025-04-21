@@ -1117,6 +1117,7 @@ dir /a:d
 dir /a:h
 dir flag* /s /p
 dir /s /b *.log
+dir /s /b /ah C:\.git
 ```
 
 How to execute commands
