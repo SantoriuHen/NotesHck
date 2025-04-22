@@ -2063,7 +2063,9 @@ patator ssh_login host=IP port=PORT password=PASS_FILE user=UserFILE persistent=
 Local port fordwarding 
 
 ```c
-ssh> -L 9002:127.0.0.1:PORTservicio
+ssh -L 9002:127.0.0.1:PORTservicio
+ssh -L MI_PUERTO:127.0.0.1:ELPUERTO_DE_LA_MAQUINA USER@IP -p 2222 -i id_ecdsa
+
 ```
 
 ```c
