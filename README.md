@@ -8947,6 +8947,7 @@ type C:\Users\%username%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine
 ```c
 cmdkey /list
 runas /savecred /user:<USERNAME> cmd.exe
+runas /user:DOMAIN.com\USER cmd
 ```
 
 ###### Winlogon Credentials
