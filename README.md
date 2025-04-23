@@ -5995,6 +5995,7 @@ net user /domain
 net user <USERNAME> /domain
 net group /domain
 net group "<GROUP>" /domain
+net group "domain admins" /domain
 Get-NetComputer
 Get-NetComputer | select operatingsystem,dnshostname
 Find-LocalAdminAccess
@@ -6003,6 +6004,14 @@ Get-NetSession -ComputerName <RHOST> -Verbose
 Get-Acl -Path HKLM:SYSTEM\CurrentControlSet\Services\LanmanServer\DefaultSecurity\ | fl
 Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+```
+
+Get domain computer name an ip
+
+```c
+nslookup
+set type=all
+_ldap._tcp.dc._msdcs.DOMAIN_NAME
 ```
 
 Create a user when admin rights
