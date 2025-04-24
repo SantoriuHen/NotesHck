@@ -1946,7 +1946,17 @@ If NT_STATUS_CONNECTION_DISCONNECTED
 
 
 ```c
-smbclient -L IP -N 2>/dev/null | grep “CARPETA” | awk '{print $1}' | while read sharedFolder; do echo "==="$(sharedFolder)"=="; smbclient //IP/${sharedFolder} -c "dir"; echo; done 
+smbclient -L IP -N 2>/dev/null | grep “CARPETA” | awk '{print $1}' | while read sharedFolder; do echo "===$(sharedFolder)=="; smbclient //IP/${sharedFolder} -c "dir"; echo; done
+
+proxychains smbclient -L //IP/ -U DOMAIN/user%PASSWORD \
+| awk '{print $1}' \
+| tr -d ' ' \
+| sed -n 4,10p \
+| while read sharedFolder; do
+    echo "===${sharedFolder}===";
+    proxychains smbclient "//IP/${sharedFolder}" -c "dir";
+    echo;
+done
 
 smbclient -L IP -N | grep -i "disk" | sed 's/\s*\(.*\)\s*Disk.*/\1/'| while read sharedfolder; do echo "======{$sharedfolder}=====";smbclient -N "/IP/${sharedfolder}" -c dir; echo; done
 ```
@@ -1964,7 +1974,7 @@ or
 
 ```c
 smbclient -L 10.10.11.152 -N 2>/dev/null | awk '{print $1}' | tr -d ' '  | sed -n 4,10p | 
-while read sharedFolder; do echo "==="$(sharedFolder)"=="; smbclient //10.10.11.152/${sharedFolder} -c "dir"; echo; done
+while read sharedFolder; do echo "===$(sharedFolder)=="; smbclient //10.10.11.152/${sharedFolder} -c "dir"; echo; done
 ```
 Download folders 
 
