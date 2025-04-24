@@ -1956,6 +1956,10 @@ smbclient -N -L IP 2>/dev/null | grep "Sharename" | awk '{print $1}'
 | while read sharedFolder; do echo "==="${sharedFolder}"=="; smbclient //IP/${sharedFolder} -c "dir"; echo; done
 ```
 
+```c
+for i in {6,7,21,19,15,30,14,20}; do proxychains smbclient -L  //IPX.X.X.${i} -U DOMAIN/USER%PASS; done
+```
+
 or
 
 ```c
