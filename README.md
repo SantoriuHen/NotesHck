@@ -1109,7 +1109,7 @@ echo "<COMMAND>" | iconv -f UTF-8 -t UTF-16LE | base64 -w0
 
 #### Microsoft Windows
 
-##### dir
+##### dir find files windows
 
 ```c
 dir /a
@@ -1118,6 +1118,11 @@ dir /a:h
 dir flag* /s /p
 dir /s /b *.log
 dir /s /b /ah C:\.git
+```
+find files in powershell
+
+```c
+cmd.exe /c "dir /s/b c:\FILE.txt"
 ```
 
 How to execute commands
