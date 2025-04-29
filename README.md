@@ -8514,13 +8514,14 @@ fdisk -l
 
 ```c
 df -h
-```c
+```
 
 Check open ports on the container
 
 ```c
 base64 -w 0 portScan.sh | xclip -sel clip
 ```
+
 Check on linux 
 ```c
 echo PAYLOAD | base64 -d > portSanc.sh
