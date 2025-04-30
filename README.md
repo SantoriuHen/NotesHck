@@ -5072,6 +5072,7 @@ zip2john <FILE> > <FILE>
 john <FILE> --wordlist=/PATH/TO/WORDLIST/<WORDLIST> --format=crypt
 john <FILE> --rules --wordlist=/PATH/TO/WORDLIST/<WORDLIST
 john --show <FILE>
+hashcat -m 13600 zip.hash
 ```
 
 #### Kerbrute
