@@ -6041,6 +6041,15 @@ Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion
 [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
 ```
 
+Open connection
+
+```c
+netsh advfirewall set allprofiles state off
+netsh advfirewall add rule name="Open All Ports" dir=in action=allow protocol=TCP localport=0-65535
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /t REG_DWORD /v portnumber /d 3389 /f
+wmic rdtoggle where servername =' computername ' call setallowtsconnections 1
+```
+
 Get domain computer name an ip
 
 ```c
