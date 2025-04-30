@@ -2739,6 +2739,8 @@ ffuf -w /opt/seclists/Discovery/Web-Content/directory-list-1.0.txt -u http://<RH
 
 #### GitTools
 
+https://education.github.com/git-cheat-sheet-education.pdf
+
 ```c
 ./gitdumper.sh http://<RHOST>/.git/ /PATH/TO/FOLDER
 ./extractor.sh /PATH/TO/FOLDER/ /PATH/TO/FOLDER/
