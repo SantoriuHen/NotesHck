@@ -513,6 +513,7 @@
 | Windows Local Privilege Escalation | https://github.com/nickvourd/Windows-Local-Privilege-Escalation-Cookbook |
 | Bloodhound | https://bloodhound.specterops.io/get-started/introduction |
 | Compiled Binary | https://github.com/h4rithd/PrecompiledBinaries/tree/main/Nmap.exe |
+| Compiled Binary | https://github.com/jakobfriedl/precompiled-binaries/tree/main |
 
 ## Commands
 
