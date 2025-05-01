@@ -2564,7 +2564,16 @@ snmpwalk -c public -v1 <RHOST> 1.3.6.1.4.1.77.1.2.3.1.1
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.4.1.77.1.2.27
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.2.1.6.13.1.3
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.2.1.25.6.3.1.2
+snmpwalk -v 2c -c security <RHOST> NET-SNMP-EXTEND-MIB::nsExtendOutputFull NET-SNMP-EXTEND-MIB::nsExtendedOutputFull."password" = STRING: USER:PASS
 ```
+
+community strings
+
+```c
+python3 snmpbrute.py -t IP
+```
+
+
 
 ### Web Application Analysis
 
