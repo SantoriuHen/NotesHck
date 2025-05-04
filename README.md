@@ -3969,7 +3969,6 @@ Go to template and change index.php for a revershell
 
 https://www.hackingarticles.in/joomla-reverse-shell/
 
-
 ##### WORDPRESS
 login en 
 ```c
@@ -8588,6 +8587,8 @@ sudo script that usses the command.sh
 ./c -p
 ```
 Create a file or a revershell
+
+https://www.revshells.com/
 
 ```c
 #!/bin/bash
