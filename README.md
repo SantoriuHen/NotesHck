@@ -8602,7 +8602,7 @@ chmod +x FILE
 Find cron jobs
 
 ```c
-eo command
+ps -eo command
 ```
 
 Running tasks
@@ -8612,7 +8612,7 @@ set IFS=$'\n'
 ```
 
 ```c
-for i in $(eo command); do echo $i; done
+for i in $(ps -eo command); do echo $i; done
 ```
  
 ```c
@@ -8623,10 +8623,10 @@ cat /etc/crontab
 #!/bin/bash
 
 IFS=$'\n'
-old_process=$(eo command)
+old_process=$(ps -eo command)
 
 while true; do
-        new_process=(eo command)
+        new_process=(ps -eo command)
         diff <(echo "$old_process") <(echo "$new_process") | grep [\<\>]
         sleep 1
         old_process=$new_process
@@ -8636,9 +8636,9 @@ done
 ```c
 #!/bin/bash
 
-old_process = $(eo command)
+old_process = $(ps -eo command)
 while true; do 
-        new_process=$(eo command)
+        new_process=$(ps -eo command)
         diff <(echo "$old_process") <(echo "$new_process") | grep "[\>\<]" | grep -v -E "procmon|command"
         old_process=$new_porcess
 done
