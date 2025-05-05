@@ -2572,6 +2572,7 @@ snmpwalk -v 2c -c security <RHOST> NET-SNMP-EXTEND-MIB::nsExtendOutputFull NET-S
 ```
 
 community strings
+https://www.poplabsec.com/snmp-pentesting/
 
 ```c
 python3 snmpbrute.py -t IP
