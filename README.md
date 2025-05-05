@@ -5865,7 +5865,7 @@ proxychains -q msfconsole
 
 ###### Generate Payload
 
-Types of payloads Stager or Stageless 
+Types of payloads Stager or Stageless. Msfvenom reverse shell
 
 https://infinitelogins.com/2020/01/25/msfvenom-reverse-shell-payload-cheatsheet/
 
