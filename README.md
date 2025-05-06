@@ -2702,6 +2702,7 @@ ffuf -w /usr/share/wordlists/dirb/common.txt -u http://<RHOST>/FUZZ --fw <NUMBER
 ffuf -w /usr/share/wordlists/dirb/common.txt -u http://<RHOST>/FUZZ -mc 200,204,301,302,307,401 -o results.txt
 ffuf -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u http://<RHOST>/ -H "Host: FUZZ.<RHOST>" -fs 185
 ffuf -c -w /usr/share/wordlists/seclists/Fuzzing/4-digits-0000-9999.txt -u http://<RHOST>/backups/backup_2020070416FUZZ.zip
+ffuf -u http://IP -H "Host: FUZZ.SUB.example.com" -w /usr/share/secLists/Discovery/DNS/subdomains-top1million-20000.txt -mc all -ac
 ```
 
 ##### API Fuzzing
