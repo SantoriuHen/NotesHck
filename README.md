@@ -9759,6 +9759,7 @@ powershell -c "[Environment]::Is64BitProcess"
 
 ```c
 type C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+Get-PSReadLineOption
 ```
 
 ##### Base64 Encoding using pwsh
