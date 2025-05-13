@@ -4421,6 +4421,12 @@ postgres=# \q                        // quit
 <DATABASE>=# DROP TABLE IF EXISTS cmd_exec;
 ```
 
+correc commandos pero del usuario de la shell
+
+```c
+\! id
+```
+
 #### Redis
 
 ```c
