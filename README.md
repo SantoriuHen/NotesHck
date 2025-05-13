@@ -4346,6 +4346,12 @@ mysql> SELECT LOAD_FILE('C:\\PATH\\TO\\FILE\\<FILE>');
 mysql> SHOW GRANTS FOR '<USERNAME>'@'localhost' \G;
 ```
 
+Crack mysql password
+
+```c
+hashcat -m 7400 -a 0 hash_sql.txt /usr/share/wordlists/rockyou.txt
+```
+
 ##### Update User Password
 
 ```c
