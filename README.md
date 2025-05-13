@@ -8186,6 +8186,7 @@ git diff COMIT_NUMBER
 iptables -I INPUT 1 -s <ip> -j ACCEPT
 iptables -I OUTPUT 1 -d <ip> -j ACCEPT
 iptables -Z
+iptables -I INPUT -p tcp --dport 22 -j ACCEPT // open port 22 ssh
 ```
 
 List
