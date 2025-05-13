@@ -68,7 +68,7 @@
 		- [Upload Vulnerabilities](#upload-vulnerabilities)
         - [Gobuster](#gobuster)
 		- [wfuzz](#wfuzz)
-        - [Ferobuster](#ferobuster)
+        - [Feroxbuster](#feroxbuster)
 		- [WPScan](#wpscan)
 		- [XML External Entity (XXE)](#xml-external-entity-xxe)
   		- [Path Traversal](#path-traversal)
@@ -216,7 +216,7 @@
 | PHPGGC | https://github.com/ambionics/phpggc |
 | Spose | https://github.com/aancw/spose |
 | Wfuzz | https://github.com/xmendez/wfuzz |
-| Ferobuster | https://github.com/epi052/feroxbuster |
+| Feroxbuster | https://github.com/epi052/feroxbuster |
 | WhatWeb | https://github.com/urbanadventurer/WhatWeb |
 | WPScan | https://github.com/wpscanteam/wpscan |
 | Davtest | https://github.com/cldrn/davtest |
@@ -3588,7 +3588,7 @@ wfuzz -H 'Cookie: COKIE'
 #### Ferobuster
 
 ```c
- ferobuster -u http://IP:PORT -o OutputFile -x php
+ feroxbuster -u http://IP:PORT -o OutputFile -x git,php,txt,pdf
 ```
 
 Extract links 
