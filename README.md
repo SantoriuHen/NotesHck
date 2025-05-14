@@ -1750,8 +1750,10 @@ xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /cert:ignore
 xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /dynamic-resolution +clipboard
 xfreerdp /v:<RHOST> /u:<USERNAME> /d:<DOMAIN> /pth:'<HASH>' /dynamic-resolution +clipboard
 xfreerdp /v:<RHOST> /dynamic-resolution +clipboard /tls-seclevel:0 -sec-nla
-xfreerdp /v:<RHOST> /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /drive:share,/home/henrial  // join the share into the home of kali
+xfreerdp /v:<RHOST>:PORT /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /drive:share,/home/henrial  // join the share into the home of kali
+ xfreerdp FILE.rdp /u:<USERNAME> /p:<PASSWORD> /d:<DOMAIN> /v:etc.host.com /size:80% /port:PORT
 rdesktop <RHOST>
+
 ```
 
 #### showmount
