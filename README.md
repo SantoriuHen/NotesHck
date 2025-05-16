@@ -484,6 +484,7 @@
 | Kerberos Username Enumeration | https://github.com/attackdebris/kerberos_enum_userlists |
 | SecLists | https://github.com/danielmiessler/SecLists |
 | Username Anarchy | https://github.com/urbanadventurer/username-anarchy |
+| Windows LFI | https://github.com/Karanxa/Bug-Bounty-Wordlists/blob/main/windows-lfi.txt |
 
 ### Reporting
 
